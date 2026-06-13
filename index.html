@@ -18,6 +18,9 @@
 		.offer{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #222}
 		.offer button{background:#16a085;color:#fff}
 		.offer-desc{color:#999;font-size:14px;margin-left:12px}
+		.game-nav{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+		.game-nav button{background:#34495e;color:#fff;border:none;border-radius:4px;padding:8px 10px;cursor:pointer}
+		.game-nav button.active{background:#f39c12;color:#000}
 	</style>
 </head>
 <body>
@@ -40,18 +43,15 @@
 				<p id="balanceDisplay">Jetons : 0</p>
 			</div>
 		</div>
-		<p id="welcome"></p>
-		<div class="categories">
-			<h2>Catégories de jeux</h2>
-			<div class="offer">
-				<div>
-					<strong>Machine à sous</strong>
-					<p class="offer-desc">1 jeton par tour. Probabilité de gain réglable dans le panneau admin.</p>
-				</div>
-				<button id="playSlotBtn">Jouer 1 jeton</button>
-			</div>
-			<p id="slotResult" style="margin-top:8px;color:#f1c40f"></p>
+		<div class="game-nav">
+			<button class="navBtn active" data-page="shopPage">Achat de jetons</button>
+			<button class="navBtn" data-page="slotPage">Machine à sous</button>
+			<button class="navBtn" data-page="blackjackPage">Black Jack</button>
+			<button class="navBtn" data-page="pokerPage">Poker</button>
+			<button class="navBtn" data-page="scratchPage">Ticket à gratter</button>
+			<button class="navBtn" data-page="lotteryPage">Loterie</button>
 		</div>
+		<p id="welcome"></p>
 		<div class="offers">
 			<h2>Choisissez une offre</h2>
 			<div class="offer">
@@ -72,6 +72,113 @@
 			<h3>Mes achats en attente</h3>
 			<div class="user-list" id="pendingList"></div>
 		</div>
+	</div>
+
+	<div class="container" id="slotPage" style="display:none">
+		<div class="header">
+			<h1>Machine à sous</h1>
+			<div>
+				<p id="balanceDisplaySlot">Jetons : 0</p>
+			</div>
+		</div>
+		<div class="game-nav">
+			<button class="navBtn" data-page="shopPage">Achat de jetons</button>
+			<button class="navBtn" data-page="slotPage">Machine à sous</button>
+			<button class="navBtn" data-page="blackjackPage">Black Jack</button>
+			<button class="navBtn" data-page="pokerPage">Poker</button>
+			<button class="navBtn" data-page="scratchPage">Ticket à gratter</button>
+			<button class="navBtn" data-page="lotteryPage">Loterie</button>
+		</div>
+		<p id="slotWelcome" style="margin-top:0">Jouez à la machine à sous et tentez de gagner des jetons.</p>
+		<div class="offer">
+			<div>
+				<strong>Machine à sous</strong>
+				<p class="offer-desc">1 jeton par tour. Probabilité de gain réglable dans le panneau admin.</p>
+			</div>
+			<button id="playSlotBtn">Jouer 1 jeton</button>
+		</div>
+		<p id="slotResult" style="margin-top:8px;color:#f1c40f"></p>
+		<p id="slotMessage" style="margin-top:12px"></p>
+	</div>
+
+	<div class="container" id="scratchPage" style="display:none">
+		<div class="header">
+			<h1>Ticket à gratter</h1>
+			<div>
+				<p id="balanceDisplayScratch">Jetons : 0</p>
+			</div>
+		</div>
+		<div class="game-nav">
+			<button class="navBtn" data-page="shopPage">Achat de jetons</button>
+			<button class="navBtn" data-page="slotPage">Machine à sous</button>
+			<button class="navBtn" data-page="blackjackPage">Black Jack</button>
+			<button class="navBtn" data-page="pokerPage">Poker</button>
+			<button class="navBtn" data-page="scratchPage">Ticket à gratter</button>
+			<button class="navBtn" data-page="lotteryPage">Loterie</button>
+		</div>
+		<p style="margin-top:0">Grattez votre ticket pour tenter de gagner des jetons.</p>
+		<div class="offer">
+			<div>
+				<strong>Ticket à gratter</strong>
+				<p class="offer-desc">Coût 2 jetons. Gagnez 10 jetons si vous obtenez au moins 2 symboles identiques.</p>
+			</div>
+			<button id="playScratchBtn">Gratter 2 jetons</button>
+		</div>
+		<p id="scratchResult" style="margin-top:8px;color:#f1c40f"></p>
+	</div>
+
+	<div class="container" id="blackjackPage" style="display:none">
+		<div class="header">
+			<h1>Black Jack</h1>
+			<div>
+				<p id="balanceDisplayBJ">Jetons : 0</p>
+			</div>
+		</div>
+		<div class="game-nav">
+			<button class="navBtn" data-page="shopPage">Achat de jetons</button>
+			<button class="navBtn" data-page="slotPage">Machine à sous</button>
+			<button class="navBtn" data-page="blackjackPage">Black Jack</button>
+			<button class="navBtn" data-page="pokerPage">Poker</button>
+			<button class="navBtn" data-page="scratchPage">Ticket à gratter</button>
+			<button class="navBtn" data-page="lotteryPage">Loterie</button>
+		</div>
+		<p>Black Jack sera disponible bientôt.</p>
+	</div>
+
+	<div class="container" id="pokerPage" style="display:none">
+		<div class="header">
+			<h1>Poker</h1>
+			<div>
+				<p id="balanceDisplayPoker">Jetons : 0</p>
+			</div>
+		</div>
+		<div class="game-nav">
+			<button class="navBtn" data-page="shopPage">Achat de jetons</button>
+			<button class="navBtn" data-page="slotPage">Machine à sous</button>
+			<button class="navBtn" data-page="blackjackPage">Black Jack</button>
+			<button class="navBtn" data-page="pokerPage">Poker</button>
+			<button class="navBtn" data-page="scratchPage">Ticket à gratter</button>
+			<button class="navBtn" data-page="lotteryPage">Loterie</button>
+		</div>
+		<p>Poker sera disponible bientôt.</p>
+	</div>
+
+	<div class="container" id="lotteryPage" style="display:none">
+		<div class="header">
+			<h1>Loterie</h1>
+			<div>
+				<p id="balanceDisplayLottery">Jetons : 0</p>
+			</div>
+		</div>
+		<div class="game-nav">
+			<button class="navBtn" data-page="shopPage">Achat de jetons</button>
+			<button class="navBtn" data-page="slotPage">Machine à sous</button>
+			<button class="navBtn" data-page="blackjackPage">Black Jack</button>
+			<button class="navBtn" data-page="pokerPage">Poker</button>
+			<button class="navBtn" data-page="scratchPage">Ticket à gratter</button>
+			<button class="navBtn" data-page="lotteryPage">Loterie</button>
+		</div>
+		<p>Loterie sera disponible bientôt.</p>
 	</div>
 
 	<aside class="admin" id="adminPanel" style="display:none">
@@ -104,6 +211,11 @@
 		const bannedList = document.getElementById('bannedList');
 		const requestList = document.getElementById('requestList');
 		const balanceDisplay = document.getElementById('balanceDisplay');
+		const balanceDisplaySlot = document.getElementById('balanceDisplaySlot');
+		const balanceDisplayScratch = document.getElementById('balanceDisplayScratch');
+		const balanceDisplayBJ = document.getElementById('balanceDisplayBJ');
+		const balanceDisplayPoker = document.getElementById('balanceDisplayPoker');
+		const balanceDisplayLottery = document.getElementById('balanceDisplayLottery');
 		const buyButtons = document.querySelectorAll('.buyBtn');
 		const pendingList = document.getElementById('pendingList');
 		const shopMessage = document.getElementById('shopMessage');
@@ -113,6 +225,11 @@
 		const clearBtn = document.getElementById('clearBtn');
 		const playSlotBtn = document.getElementById('playSlotBtn');
 		const slotResult = document.getElementById('slotResult');
+		const slotMessage = document.getElementById('slotMessage');
+		const playScratchBtn = document.getElementById('playScratchBtn');
+		const scratchResult = document.getElementById('scratchResult');
+		const navButtons = document.querySelectorAll('.navBtn');
+		const pages = ['shopPage','slotPage','scratchPage','blackjackPage','pokerPage','lotteryPage'];
 
 		let currentUser = null;
 
@@ -168,6 +285,20 @@
 			const balances = loadBalances();
 			const amount = currentUser ? (balances[currentUser]||0) : 0;
 			balanceDisplay.textContent = `Jetons : ${amount}`;
+			balanceDisplaySlot.textContent = `Jetons : ${amount}`;
+			balanceDisplayScratch.textContent = `Jetons : ${amount}`;
+			balanceDisplayBJ.textContent = `Jetons : ${amount}`;
+			balanceDisplayPoker.textContent = `Jetons : ${amount}`;
+			balanceDisplayLottery.textContent = `Jetons : ${amount}`;
+		}
+
+		function showPage(pageId){
+			pages.forEach(id=>{
+				const page = document.getElementById(id);
+				if(page) page.style.display = id===pageId ? 'block' : 'none';
+			});
+			navButtons.forEach(btn=>btn.classList.toggle('active', btn.dataset.page===pageId));
+			updateBalanceDisplay();
 		}
 
 		function banUser(name){
@@ -233,15 +364,16 @@
 
 		playSlotBtn.addEventListener('click', ()=>{
 			if(!currentUser){
-				shopMessage.textContent = 'Connectez-vous avant de jouer.';
+				slotMessage.textContent = 'Connectez-vous avant de jouer.';
 				return;
 			}
 			const balances = loadBalances();
 			const amount = balances[currentUser]||0;
 			if(amount < 1){
-				shopMessage.textContent = 'Vous n\'avez pas assez de jetons pour jouer.';
+				slotMessage.textContent = 'Vous n\'avez pas assez de jetons pour jouer.';
 				return;
 			}
+			slotMessage.textContent = '';
 			// start animation
 			playSlotBtn.disabled = true;
 			playSlotBtn.textContent = 'Lancement...';
@@ -262,6 +394,34 @@
 				// finalize result (consumes token and possibly awards)
 				playSlotMachineFinalize();
 			},1200);
+		});
+
+		playScratchBtn.addEventListener('click', ()=>{
+			if(!currentUser){
+				scratchResult.textContent = 'Connectez-vous avant de jouer.';
+				return;
+			}
+			const balances = loadBalances();
+			const amount = balances[currentUser]||0;
+			if(amount < 2){
+				scratchResult.textContent = 'Vous n\'avez pas assez de jetons.';
+				return;
+			}
+			balances[currentUser] = amount - 2;
+			const symbols = ['🍀','💎','⭐','🍒','7️⃣'];
+			const result = Array.from({length:3}, ()=>symbols[Math.floor(Math.random()*symbols.length)]);
+			const counts = result.reduce((acc,symbol)=>{ acc[symbol] = (acc[symbol]||0) + 1; return acc; }, {});
+			const win = Object.values(counts).some(v=>v>=2);
+			if(win){
+				balances[currentUser] += 10;
+				scratchResult.style.color = '#2ecc71';
+				scratchResult.textContent = `Résultat : ${result.join(' ')} - Bravo ! Vous gagnez 10 jetons.`;
+			} else {
+				scratchResult.style.color = '#f1c40f';
+				scratchResult.textContent = `Résultat : ${result.join(' ')} - Pas de chance.`;
+			}
+			saveBalances(balances);
+			updateBalanceDisplay();
 		});
 
 		function renderMachineProb(){
@@ -285,17 +445,13 @@
 				return;
 			}
 			const users = loadUsers();
-			// Allow only a single pseudo in the system
-			if(users.length === 0){
+			if(!users.includes(name)){
 				users.push(name);
 				saveUsers(users);
-			} else if(!users.includes(name)){
-				message.textContent = 'Un seul pseudo est autorisé. Connectez-vous avec le pseudo existant.';
-				return;
 			}
 			currentUser = name;
 			message.style.display='none';
-			shopPage.style.display='block';
+			showPage('shopPage');
 			welcome.textContent = `Bienvenue, ${name} ! Amusez-vous bien.`;
 			pseudoInput.value='';
 			updateBalanceDisplay();
@@ -311,8 +467,11 @@
 			});
 		});
 
-		saveProbBtn.addEventListener('click', ()=>{
-			const probability = Number(machineProbInput.value);
+		navButtons.forEach(btn=>{
+			btn.addEventListener('click', ()=> showPage(btn.dataset.page));
+		});
+
+		saveProbBtn.addEventListener('click', ()=>{			const probability = Number(machineProbInput.value);
 			if(isNaN(probability) || probability < 0 || probability > 100){
 				shopMessage.textContent = 'Entrez une probabilité valide entre 0 et 100.';
 				return;
