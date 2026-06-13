@@ -205,6 +205,10 @@
       <div id="blackjack" class="casino-section hidden">
         <h3>Blackjack</h3>
         <p>Essayez de battre le croupier sans dépasser 21.</p>
+        <div class="blackjack-table" style="margin-bottom:12px; padding:12px; border-radius:12px; background: linear-gradient(180deg,#0b3a2f,#06402b); box-shadow: inset 0 2px 0 rgba(255,255,255,0.04); color: #e6fff6;">
+          <label for="betAmount" style="font-weight:600;">Mise (1-15 jetons)</label>
+          <input type="number" id="betAmount" min="1" max="15" value="5" style="width:100%; padding:8px; margin-top:8px; border-radius:8px;" />
+        </div>
         <div id="blackjackInfo" class="result"></div>
         <div class="blackjack-controls">
           <button id="dealButton" type="button">Distribuer</button>
@@ -574,11 +578,13 @@
 
     document.getElementById('dealButton').addEventListener('click', () => {
       const blackjackInfo = document.getElementById('blackjackInfo');
-      if (tokens < 5) {
-        blackjackInfo.textContent = 'Vous avez besoin d au moins 5 jetons pour jouer.';
+      const betInput = document.getElementById('betAmount');
+      const bet = Math.min(15, Math.max(1, parseInt(betInput.value, 10) || 1));
+      if (tokens < bet) {
+        blackjackInfo.textContent = `Vous avez besoin d au moins ${bet} jetons pour jouer.`;
         return;
       }
-      tokens -= 5;
+      tokens -= bet;
       updateBalance();
       const deck = createDeck();
       blackjackState = {
@@ -588,7 +594,8 @@
       };
       document.getElementById('hitButton').disabled = false;
       document.getElementById('standButton').disabled = false;
-      blackjackInfo.textContent = `Vos cartes : ${blackjackState.player.join(', ')} (total ${totalHand(blackjackState.player)}) - Croupier : ${blackjackState.dealer[0]}`;
+      blackjackInfo.textContent = `Mise : ${bet} jetons - Vos cartes : ${blackjackState.player.join(', ')} (total ${totalHand(blackjackState.player)}) - Croupier : ${blackjackState.dealer[0]}`;
+      blackjackState.bet = bet;
     });
 
     document.getElementById('hitButton').addEventListener('click', () => {
@@ -615,12 +622,13 @@
       const playerTotal = totalHand(blackjackState.player);
       const dealerTotal = totalHand(blackjackState.dealer);
       let result;
+      const bet = blackjackState.bet || 5;
       if (dealerTotal > 21 || playerTotal > dealerTotal) {
-        result = 'Vous gagnez ! +15 jetons';
-        tokens += 15;
+        result = `Vous gagnez ! +${bet * 3} jetons`;
+        tokens += bet * 3;
       } else if (dealerTotal === playerTotal) {
-        result = 'Égalité. Vous récupérez 5 jetons';
-        tokens += 5;
+        result = `Égalité. Vous récupérez ${bet} jetons`;
+        tokens += bet;
       } else {
         result = 'Le croupier gagne. Vous perdez.';
       }
@@ -784,6 +792,4 @@
   </script>
 </body>
 </html>
-
-
 
