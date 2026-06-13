@@ -1,726 +1,311 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width,initial-scale=1">
-	<title>Casino de Nîmes RP - Machine à Sous</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<title>Casino - Accueil</title>
 	<style>
-		body{font-family:Segoe UI,Arial,sans-serif;background:#041107;color:#e4ffe8;margin:0;display:block;min-height:100vh;background-image:radial-gradient(circle at top left,rgba(75,255,133,.16),transparent 18%),radial-gradient(circle at bottom right,rgba(35,255,120,.12),transparent 20%)}
-		.casino{background:linear-gradient(180deg,rgba(6,18,10,.98),rgba(3,8,5,.98));padding:26px;border-radius:0;box-shadow:none;width:100vw;height:100vh;border:0;backdrop-filter:blur(6px)}
-		h1{font-size:20px;margin:0 0 12px;text-align:center;color:#e9ffea;display:flex;flex-direction:column;align-items:center;gap:6px}
-		.logo{font-weight:800;letter-spacing:0.6px;padding:6px 14px;border-radius:999px;background:linear-gradient(90deg,rgba(19,220,110,.14),rgba(23,200,100,.06));box-shadow:0 6px 18px rgba(24,220,120,.06),inset 0 -6px 18px rgba(0,0,0,.08);color:#dfffe3}
-		.neon{position:relative}
-		.neon:after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:220px;height:48px;border-radius:999px;filter:blur(14px);background:radial-gradient(circle,rgba(35,255,140,.12),transparent 45%);opacity:.8}
-		.balance{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-		.balance .coins{font-weight:700;color:#8aff8f}
-		.slots{display:flex;gap:8px;justify-content:center;margin-bottom:12px}
-		.blackjack-board{display:flex;flex-direction:column;gap:8px;justify-content:center;margin-bottom:12px}
-		.blackjack-board div{background:rgba(7,20,10,.95);padding:12px;border-radius:10px;border:1px solid rgba(140,255,164,.12);font-size:15px}
-		.reel{width:84px;height:84px;background:linear-gradient(180deg,rgba(6,18,12,.92),rgba(8,26,14,.95));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;border:1px solid rgba(140,255,164,.12);box-shadow:inset 0 0 12px rgba(0,255,140,.06)}
-		.controls{display:flex;gap:8px;justify-content:center;margin-bottom:12px}
-		button{background:#0e7f3d;color:#f6fffa;border:0;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:600;box-shadow:0 6px 14px rgba(0,0,0,.25);transition:transform .15s ease,background .15s ease}
-		button:hover:not(:disabled){transform:translateY(-1px);background:#15ad4e}
-		button:disabled{opacity:.45;cursor:default}
-		.info{font-size:13px;color:#b9d9b2;margin-top:10px;text-align:center}
-		.topbar{display:flex;gap:8px;justify-content:center;margin-bottom:12px}
-		.topbar input{flex:1;padding:8px;border-radius:10px;border:1px solid rgba(138,255,157,.18);background:rgba(8,18,9,.95);color:#e4ffe8}
-		.tab{flex:1;padding:10px 12px;border-radius:10px;border:1px solid rgba(138,255,157,.16);background:rgba(11,25,12,.95);color:#e4ffe8;cursor:pointer}
-		.tab.active{background:#17c853}
-		.purchase{display:flex;gap:8px;justify-content:center;margin-bottom:12px}
-		.purchase input{width:100px;padding:8px;border-radius:10px;border:1px solid rgba(138,255,157,.18);background:rgba(8,18,9,.95);color:#e4ffe8}
-		.admin-panel{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;padding:20px;visibility:hidden;opacity:0;pointer-events:none;transition:opacity .2s}
-		.admin-panel.active{visibility:visible;opacity:1;pointer-events:auto}
-		.admin-content{background:rgba(7,16,8,.98);border-radius:18px;padding:22px;max-width:560px;width:100%;color:#e4ffe8;box-shadow:0 16px 48px rgba(0,255,120,.16)}
-		.admin-content h2{margin-top:0;text-align:center;color:#b9ffb7}
-		.admin-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
-		.admin-row select,.admin-row input{flex:1;padding:8px;border-radius:10px;border:1px solid rgba(138,255,157,.18);background:rgba(8,18,9,.95);color:#e4ffe8}
-		.admin-list, .admin-pending{max-height:180px;overflow:auto;background:rgba(8,18,9,.96);padding:12px;border-radius:12px;border:1px solid rgba(138,255,157,.14);margin-bottom:12px}
-		.admin-item{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid rgba(138,255,157,.08)}
-		.admin-item:last-child{border-bottom:none}
-		.admin-item span{font-size:13px;color:#b9ffb7}
-		/* subtle sparkle animation */
-		@keyframes sparkle{0%{opacity:.4;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}100%{opacity:.4;transform:translateY(0)}}
-		.logo{animation:sparkle 3.8s infinite}
+		body{font-family:Arial,Helvetica,sans-serif;background:#0b1020;color:#fff;margin:0}
+		.container{max-width:900px;margin:40px auto;padding:20px;background:#111428;border-radius:8px}
+		.header{display:flex;justify-content:space-between;align-items:center}
+		input[type=text]{padding:8px;border-radius:4px;border:1px solid #333;background:#0f1724;color:#fff}
+		button{padding:8px 12px;border-radius:4px;border:none;background:#f39c12;color:#000;cursor:pointer}
+		.admin{position:fixed;right:16px;top:16px;width:260px;background:#0f1724;padding:12px;border-radius:8px;border:1px solid #222}
+		.admin h3{margin:0 0 8px 0;font-size:16px}
+		.user-list{max-height:300px;overflow:auto;margin-top:8px;border-top:1px solid #222;padding-top:8px}
+		.user-item{padding:6px;border-bottom:1px dashed #222;font-size:14px}
+		.offers{margin-top:16px}
+		.offer{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #222}
+		.offer button{background:#16a085;color:#fff}
+		.offer-desc{color:#999;font-size:14px;margin-left:12px}
 	</style>
 </head>
 <body>
-	<div class="casino">
-		<div id="greeting" style="text-align:center;margin-bottom:8px;color:#9fb3d6"></div>
-		<div class="topbar">
-			<input id="playerName" placeholder="Entrez votre pseudo">
-			<button id="loginBtn">Se connecter</button>
-			<!-- Bouton admin visible pour débogage / accès rapide -->
-			<button id="adminBtn" title="Ouvrir panneau admin">Admin</button>
-		</div>
-		<h1 class="neon"><span class="logo">Casino de Nîmes RP</span><small style="font-size:12px;color:#bef7c8;opacity:.9">Mini Jeux</small></h1>
-		<div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px">
-			<button class="tab" data-game="slots">Machine à sous</button>
-			<button class="tab" data-game="blackjack">Blackjack</button>
-			<button class="tab" data-game="roulette">Roulette</button>
-			<button class="tab" data-game="scratch">Tickets à gratter</button>
-			<button class="tab" data-game="poker">Poker</button>
-		</div>
-		<div class="balance">
-			<div>Solde:</div>
-			<div class="coins" id="balance">0</div>
-		</div>
-
-		<div id="slotsSection">
-			<div class="slots">
-				<div class="reel" id="r1">—</div>
-				<div class="reel" id="r2">—</div>
-				<div class="reel" id="r3">—</div>
+	<div class="container" id="loginPage">
+		<div class="header">
+			<h1>Bienvenue au Casino</h1>
+			<div>
+				<label for="pseudo">Pseudo :</label>
+				<input id="pseudo" type="text" placeholder="Entrez votre pseudo" />
+				<button id="enterBtn">Entrer</button>
 			</div>
 		</div>
+		<p id="message">Veuillez entrer votre pseudo pour commencer le jeu vidéo.</p>
+	</div>
 
-		<div id="blackjackSection" style="display:none">
-			<div class="blackjack-board">
-				<div><strong>Banque:</strong> <span id="dealerCards">—</span> <span id="dealerTotal"></span></div>
-				<div><strong>Joueur:</strong> <span id="playerCards">—</span> <span id="playerTotal"></span></div>
+	<div class="container" id="shopPage" style="display:none">
+		<div class="header">
+			<h1>Casino - Boutique de jetons</h1>
+			<div>
+				<p id="balanceDisplay">Jetons : 0</p>
 			</div>
 		</div>
-
-		<div id="rouletteSection" style="display:none">
-			<div class="blackjack-board">
-				<div>Roulette en développement.</div>
+		<p id="welcome"></p>
+		<div class="categories">
+			<h2>Catégories de jeux</h2>
+			<div class="offer">
+				<div>
+					<strong>Machine à sous</strong>
+					<p class="offer-desc">1 jeton par tour. Probabilité de gain réglable dans le panneau admin.</p>
+				</div>
+				<button id="playSlotBtn">Jouer 1 jeton</button>
+			</div>
+			<p id="slotResult" style="margin-top:8px;color:#f1c40f"></p>
+		</div>
+		<div class="offers">
+			<h2>Choisissez une offre</h2>
+			<div class="offer">
+				<button class="buyBtn" data-qty="10" data-cost="3000">10 jetons - 3k</button>
+				<span class="offer-desc">Achat soumis à validation admin</span>
+			</div>
+			<div class="offer">
+				<button class="buyBtn" data-qty="20" data-cost="6000">20 jetons - 6k</button>
+				<span class="offer-desc">Achat soumis à validation admin</span>
+			</div>
+			<div class="offer">
+				<button class="buyBtn" data-qty="30" data-cost="8000">30 jetons - 8k</button>
+				<span class="offer-desc">Achat soumis à validation admin</span>
 			</div>
 		</div>
-
-		<div id="scratchSection" style="display:none">
-			<div class="blackjack-board">
-				<div>Tickets à gratter en développement.</div>
-			</div>
-		</div>
-
-		<div id="pokerSection" style="display:none">
-			<div class="blackjack-board">
-				<div>Poker en développement.</div>
-			</div>
-		</div>
-
-		<div class="controls">
-			<button id="spin" disabled>Jouer (0 pièces)</button>
-			<button id="hitBtn" style="display:none">Tirer</button>
-			<button id="standBtn" style="display:none">Rester</button>
-			<button id="betDown">-</button>
-			<div style="align-self:center;color:#9fb3d6" id="bet">10</div>
-			<button id="betUp">+</button>
-		</div>
-
-		<div class="purchase">
-			<input id="buyAmount" type="number" min="1" value="10">
-			<button id="buyTokens" disabled>Acheter des jetons</button>
-		</div>
-
-		<div class="info" id="message">Connectez-vous pour jouer. Appuyez sur $ pour ouvrir le panneau admin.</div>
-
-		<!-- Chat -->
-		<div id="chat" style="margin-top:12px;background:rgba(8,18,9,.95);padding:10px;border-radius:10px;border:1px solid rgba(138,255,157,.12)">
-			<div id="chatList" style="max-height:160px;overflow:auto;font-size:13px;color:#dfffe0;margin-bottom:8px"></div>
-			<div style="display:flex;gap:8px">
-				<input id="chatInput" placeholder="Message public..." style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(138,255,157,.12);background:rgba(6,14,8,.95);color:#e4ffe8">
-				<button id="chatSend">Envoyer</button>
-			</div>
+		<p id="shopMessage" style="margin-top:12px"></p>
+		<div id="pendingSection" style="margin-top:16px">
+			<h3>Mes achats en attente</h3>
+			<div class="user-list" id="pendingList"></div>
 		</div>
 	</div>
 
-	<div class="admin-panel" id="adminPanel">
-		<div class="admin-content">
-			<h2>Panneau Admin</h2>
-			<div class="admin-row">
-				<select id="adminMachineSelect"></select>
-				<input id="adminMachineChanceInput" type="number" min="0" max="100" placeholder="Probabilité machine %">
-				<button id="adminSetMachineChance">Définir probabilité machine</button>
-			</div>
-			<div class="admin-row">
-				<select id="adminPlayerSelect"></select>
-				<input id="adminChanceInput" type="number" min="0" max="100" placeholder="Bonus joueur %">
-				<button id="adminSetChance">Définir bonus joueur</button>
-			</div>
-			<div class="admin-list">
-				<strong>Probabilités des machines</strong>
-				<div id="adminMachineList"></div>
-			</div>
-			<div class="admin-list">
-				<strong>Joueurs enregistrés</strong>
-				<div id="adminPlayerList"></div>
-			</div>
-			<div class="admin-list">
-				<strong>Comptes en attente</strong>
-				<div id="adminAccountPendingList"></div>
-			</div>
-			<div class="admin-pending">
-				<strong>Achats en attente</strong>
-				<div id="adminPendingList"></div>
-			</div>
-			<div style="text-align:center">
-				<button id="adminClose">Fermer</button>
-			</div>
+	<aside class="admin" id="adminPanel" style="display:none">
+		<h3>Menu Admin</h3>
+		<small>Probabilité machine à sous :</small>
+		<div style="margin:8px 0 12px 0">
+			<label for="machineProb">Probabilité de gain (%):</label>
+			<input id="machineProb" type="number" min="0" max="100" step="1" value="50" style="width:60px;margin-left:8px" />
+			<button id="saveProbBtn" style="background:#2980b9;color:#fff;margin-left:8px">Sauvegarder</button>
 		</div>
-	</div>
+		<small>Utilisateurs enregistrés :</small>
+		<div class="user-list" id="userList"></div>
+		<small>Joueurs bannis :</small>
+		<div class="user-list" id="bannedList"></div>
+		<small>Demandes en attente :</small>
+		<div class="user-list" id="requestList"></div>
+		<div style="margin-top:8px">
+			<button id="clearBtn" style="background:#c0392b;color:#fff">Effacer</button>
+		</div>
+		<p style="font-size:12px;color:#999;margin-top:10px">Appuyez sur Ctrl + A pour afficher / masquer ce panneau.</p>
+	</aside>
 
 	<script>
-		const symbols = ['🍒','🍋','🔔','⭐','7️⃣'];
-		const players = JSON.parse(localStorage.getItem('casinoPlayers') || '{}');
-		// Normalize stored player objects to ensure required properties exist
-		Object.values(players).forEach(player => {
-			if (player.approved === undefined) player.approved = true;
-			if (player.pending === undefined) player.pending = [];
-			if (player.bonusChance === undefined) player.bonusChance = 0;
-			if (player.balance === undefined) player.balance = 100;
-			if (player.isAdmin === undefined) player.isAdmin = false;
-		});
-		let currentUser = localStorage.getItem('casinoUser') || '';
-		if (currentUser && players[currentUser] && !players[currentUser].approved) {
-			currentUser = '';
-			localStorage.removeItem('casinoUser');
-		}
-		const balanceEl = document.getElementById('balance');
-		const r1 = document.getElementById('r1'), r2 = document.getElementById('r2'), r3 = document.getElementById('r3');
-		const msg = document.getElementById('message');
-		const spinBtn = document.getElementById('spin');
-		const betEl = document.getElementById('bet');
-		const betUp = document.getElementById('betUp'), betDown = document.getElementById('betDown');
-		const loginBtn = document.getElementById('loginBtn');
-		const playerNameInput = document.getElementById('playerName');
-		const buyTokensBtn = document.getElementById('buyTokens');
-		const buyAmountInput = document.getElementById('buyAmount');
+		const pseudoInput = document.getElementById('pseudo');
+		const enterBtn = document.getElementById('enterBtn');
+		const message = document.getElementById('message');
+		const shopPage = document.getElementById('shopPage');
+		const welcome = document.getElementById('welcome');
+		const userList = document.getElementById('userList');
+		const bannedList = document.getElementById('bannedList');
+		const requestList = document.getElementById('requestList');
+		const balanceDisplay = document.getElementById('balanceDisplay');
+		const buyButtons = document.querySelectorAll('.buyBtn');
+		const pendingList = document.getElementById('pendingList');
+		const shopMessage = document.getElementById('shopMessage');
 		const adminPanel = document.getElementById('adminPanel');
-		const adminMachineSelect = document.getElementById('adminMachineSelect');
-		const adminMachineChanceInput = document.getElementById('adminMachineChanceInput');
-		const adminSetMachineChance = document.getElementById('adminSetMachineChance');
-		const adminPlayerSelect = document.getElementById('adminPlayerSelect');
-		const adminChanceInput = document.getElementById('adminChanceInput');
-		const adminSetChance = document.getElementById('adminSetChance');
-		const adminMachineList = document.getElementById('adminMachineList');
-		const adminPlayerList = document.getElementById('adminPlayerList');
-		const adminAccountPendingList = document.getElementById('adminAccountPendingList');
-		const adminPendingList = document.getElementById('adminPendingList');
-		const adminClose = document.getElementById('adminClose');
-		const greeting = document.getElementById('greeting');
-		const tabs = document.querySelectorAll('.tab');
-		const slotsSection = document.getElementById('slotsSection');
-		const blackjackSection = document.getElementById('blackjackSection');
-		const rouletteSection = document.getElementById('rouletteSection');
-		const scratchSection = document.getElementById('scratchSection');
-		const pokerSection = document.getElementById('pokerSection');
-		const dealerCardsEl = document.getElementById('dealerCards');
-		const dealerTotalEl = document.getElementById('dealerTotal');
-		const playerCardsEl = document.getElementById('playerCards');
-		const playerTotalEl = document.getElementById('playerTotal');
-		const hitBtn = document.getElementById('hitBtn');
-		const standBtn = document.getElementById('standBtn');
+		const machineProbInput = document.getElementById('machineProb');
+		const saveProbBtn = document.getElementById('saveProbBtn');
+		const clearBtn = document.getElementById('clearBtn');
+		const playSlotBtn = document.getElementById('playSlotBtn');
+		const slotResult = document.getElementById('slotResult');
 
-		let bet = 10;
-		let hotKeys = new Set();
-		let currentGame = 'slots';
-		let blackjackState = null;
+		let currentUser = null;
 
-		function savePlayers() {
-			localStorage.setItem('casinoPlayers', JSON.stringify(players));
+		function loadUsers(){ return JSON.parse(localStorage.getItem('casino_users')||'[]'); }
+		function saveUsers(list){ localStorage.setItem('casino_users',JSON.stringify(list)); }
+		function loadBanned(){ return JSON.parse(localStorage.getItem('casino_banned')||'[]'); }
+		function saveBanned(list){ localStorage.setItem('casino_banned',JSON.stringify(list)); }
+		function loadRequests(){ return JSON.parse(localStorage.getItem('casino_requests')||'[]'); }
+		function saveRequests(list){ localStorage.setItem('casino_requests',JSON.stringify(list)); }
+		function loadBalances(){ return JSON.parse(localStorage.getItem('casino_balances')||'{}'); }
+		function saveBalances(data){ localStorage.setItem('casino_balances',JSON.stringify(data)); }
+		function loadMachineProb(){ return Number(localStorage.getItem('casino_machine_prob')||50); }
+		function saveMachineProb(value){ localStorage.setItem('casino_machine_prob',value); }
+
+		function renderUsers(){
+			const banned = loadBanned();
+			const users = loadUsers().filter(u=>!banned.includes(u));
+			userList.innerHTML = users.length
+				? users.map(u=>`<div class="user-item">${u} <button onclick="banUser('${u}')" style="float:right;background:#c0392b;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer">Ban</button></div>`).join('')
+				: '<div class="user-item">Aucun utilisateur</div>';
 		}
 
-		const machineNames = {
-			slots: 'Machine à sous',
-			blackjack: 'Blackjack',
-			roulette: 'Roulette',
-			scratch: 'Tickets à gratter',
-			poker: 'Poker'
-		};
-
-		const machineChances = JSON.parse(localStorage.getItem('casinoMachineChances') || 'null') || {
-			slots: 20,
-			blackjack: 15,
-			roulette: 10,
-			scratch: 12,
-			poker: 8
-		};
-
-		function saveMachineChances() {
-			localStorage.setItem('casinoMachineChances', JSON.stringify(machineChances));
+		function renderBanned(){
+			const banned = loadBanned();
+			bannedList.innerHTML = banned.length
+				? banned.map(u=>`<div class="user-item">${u} <button onclick="unbanUser('${u}')" style="float:right;background:#27ae60;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer">Débannir</button></div>`).join('')
+				: '<div class="user-item">Aucun utilisateur banni</div>';
 		}
 
-		saveMachineChances();
-
-		function getMachineChance(machine) {
-			return machineChances[machine] || 0;
+		function renderRequests(){
+			const requests = loadRequests();
+			requestList.innerHTML = requests.length
+				? requests.map(r=>`<div class="user-item">${r.user} - ${r.qty} jetons (${r.cost} co)
+					<button onclick="acceptRequest(${r.id})" style="margin-left:8px;background:#16a085;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer">Accepter</button>
+					<button onclick="rejectRequest(${r.id})" style="margin-left:4px;background:#c0392b;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer">Rejeter</button>
+				</div>`).join('')
+				: '<div class="user-item">Aucune demande en attente</div>';
+			renderPendingList();
 		}
 
-		function setMachineChance(machine, value) {
-			machineChances[machine] = value;
-			saveMachineChances();
+		function renderPendingList(){
+			if(!currentUser){
+				pendingList.innerHTML = '<div class="user-item">Connectez-vous pour voir vos demandes.</div>';
+				return;
+			}
+			const requests = loadRequests().filter(r=>r.user===currentUser);
+			pendingList.innerHTML = requests.length
+				? requests.map(r=>`<div class="user-item">${r.qty} jetons - ${r.cost} co - demandé le ${r.created}</div>`).join('')
+				: '<div class="user-item">Aucune demande en attente</div>';
 		}
 
-		function getPlayer(name) {
-			return players[name] || null;
+		function updateBalanceDisplay(){
+			const balances = loadBalances();
+			const amount = currentUser ? (balances[currentUser]||0) : 0;
+			balanceDisplay.textContent = `Jetons : ${amount}`;
 		}
 
-		function createPlayer(name) {
-			players[name] = { balance: 100, bonusChance: 0, pending: [], approved: false };
-			savePlayers();
-			return players[name];
+		function banUser(name){
+			const banned = loadBanned();
+			if(!banned.includes(name)){
+				banned.push(name);
+				saveBanned(banned);
+			}
+			renderUsers();
+			renderBanned();
 		}
 
-		function setCurrentUser(name) {
-			if (!players[name] || !players[name].approved) return;
+		function unbanUser(name){
+			const banned = loadBanned().filter(u=>u!==name);
+			saveBanned(banned);
+			renderUsers();
+			renderBanned();
+		}
+
+		function createRequest(qty,cost){
+			if(!currentUser){
+				shopMessage.textContent = 'Connectez-vous avant de faire un achat.';
+				return;
+			}
+			const requests = loadRequests();
+			requests.push({id:Date.now(),user:currentUser,qty,cost,created:new Date().toLocaleString()});
+			saveRequests(requests);
+			renderRequests();
+			shopMessage.textContent = `Demande de ${qty} jetons envoyée. En attente validation.`;
+		}
+
+		function acceptRequest(id){
+			const requests = loadRequests();
+			const request = requests.find(r=>r.id===id);
+			if(!request) return;
+			const balances = loadBalances();
+			balances[request.user] = (balances[request.user]||0) + request.qty;
+			saveBalances(balances);
+			saveRequests(requests.filter(r=>r.id!==id));
+			renderRequests();
+			if(request.user===currentUser) updateBalanceDisplay();
+		}
+
+		function rejectRequest(id){
+			saveRequests(loadRequests().filter(r=>r.id!==id));
+			renderRequests();
+		}
+
+		function playSlotMachine(){
+			if(!currentUser){
+				shopMessage.textContent = 'Connectez-vous avant de jouer.';
+				return;
+			}
+			const balances = loadBalances();
+			const amount = balances[currentUser]||0;
+			if(amount < 1){
+				shopMessage.textContent = 'Vous n\'avez pas assez de jetons pour jouer.';
+				return;
+			}
+			const prob = loadMachineProb();
+			const win = Math.random()*100 < prob;
+			balances[currentUser] = amount - 1 + (win ? 5 : 0);
+			saveBalances(balances);
+			updateBalanceDisplay();
+			slotResult.textContent = win ? 'Bravo ! Vous gagnez 5 jetons.' : 'Perdu. Essayez encore.';
+			shopMessage.textContent = '';
+		}
+
+		function renderMachineProb(){
+			machineProbInput.value = loadMachineProb();
+		}
+
+		function renderAll(){
+			renderUsers();
+			renderBanned();
+			renderRequests();
+			renderMachineProb();
+			updateBalanceDisplay();
+		}
+
+		enterBtn.addEventListener('click', ()=>{
+			const name = pseudoInput.value.trim();
+			if(!name){ message.textContent='Veuillez entrer un pseudo valide.'; return; }
+			const banned = loadBanned();
+			if(banned.includes(name)){
+				message.textContent='Ce pseudo est banni. Vous ne pouvez pas accéder au jeu.';
+				return;
+			}
+			const users = loadUsers();
+			if(!users.includes(name)) { users.push(name); saveUsers(users); }
 			currentUser = name;
-			localStorage.setItem('casinoUser', name);
-			updateUI();
-			msg.textContent = `Connecté en tant que ${name}. Bonne chance !`;
-		}
+			message.style.display='none';
+			shopPage.style.display='block';
+			welcome.textContent = `Bienvenue, ${name} ! Amusez-vous bien.`;
+			pseudoInput.value='';
+			updateBalanceDisplay();
+			renderUsers();
+			renderPendingList();
+		});
 
-		function updateUI() {
-			const player = currentUser ? getPlayer(currentUser) : null;
-			if (!player || !player.approved) {
-				balanceEl.textContent = '0';
-				spinBtn.disabled = true;
-				buyTokensBtn.disabled = true;
-				spinBtn.textContent = 'Jouer (0 pièces)';
-				if (currentUser && player && !player.approved) {
-					greeting.textContent = `Compte ${currentUser} en attente de validation.`;
-					msg.textContent = 'Votre compte doit être validé par un admin avant de jouer.';
-				} else {
-					greeting.textContent = 'Aucun joueur connecté.';
-				}
-				return;
-			}
-			balanceEl.textContent = player.balance;
-			bet = Math.min(bet, Math.max(1, player.balance));
-			updateBet();
-			spinBtn.disabled = player.balance < bet;
-			buyTokensBtn.disabled = false;
-			greeting.textContent = `Joueur: ${currentUser} • Bonus ${player.bonusChance}%`;
-			updateAdminList();
-			updateGameButtons();
-		}
-
-		function updateBet() {
-			betEl.textContent = bet;
-			updateGameButtons();
-		}
-
-		function setGameSection(game) {
-			if (!['slots','blackjack','roulette','scratch','poker'].includes(game)) {
-				game = 'slots';
-			}
-			currentGame = game;
-			slotsSection.style.display = game === 'slots' ? 'block' : 'none';
-			blackjackSection.style.display = game === 'blackjack' ? 'block' : 'none';
-			rouletteSection.style.display = game === 'roulette' ? 'block' : 'none';
-			scratchSection.style.display = game === 'scratch' ? 'block' : 'none';
-			pokerSection.style.display = game === 'poker' ? 'block' : 'none';
-			tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.game === game));
-			if (!['slots','blackjack'].includes(game)) {
-				msg.textContent = 'Ce jeu n’est pas encore disponible.';
-			}
-			updateGameButtons();
-		}
-
-		function updateGameButtons() {
-			const player = getPlayer(currentUser);
-			const canPlay = player && player.balance >= bet && (currentGame === 'slots' || currentGame === 'blackjack');
-			const inBlackjack = currentGame === 'blackjack' && blackjackState && blackjackState.inRound;
-			spinBtn.style.display = inBlackjack ? 'none' : 'inline-block';
-			hitBtn.style.display = inBlackjack ? 'inline-block' : 'none';
-			standBtn.style.display = inBlackjack ? 'inline-block' : 'none';
-			if (!inBlackjack) {
-				spinBtn.disabled = !canPlay;
-				spinBtn.textContent = currentGame === 'blackjack'
-					? `Distribuer (${bet} pièces)`
-					: currentGame === 'slots'
-						? `Jouer (${bet} pièces)`
-						: 'Jeu indisponible';
-			}
-		}
-
-		function updateBlackjackUI() {
-			if (!blackjackState) {
-				dealerCardsEl.textContent = '—';
-				dealerTotalEl.textContent = '';
-				playerCardsEl.textContent = '—';
-				playerTotalEl.textContent = '';
-			} else {
-				dealerCardsEl.textContent = blackjackState.dealer.map(c => c.face).join(' ');
-				dealerTotalEl.textContent = ` (${handTotal(blackjackState.dealer)})`;
-				playerCardsEl.textContent = blackjackState.player.map(c => c.face).join(' ');
-				playerTotalEl.textContent = ` (${handTotal(blackjackState.player)})`;
-			}
-			updateGameButtons();
-		}
-
-		function createDeck() {
-			const suits = ['♠','♥','♦','♣'];
-			const faces = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
-			const deck = [];
-			suits.forEach(s => faces.forEach(f => deck.push({ face: `${f}${s}`, value: f })));
-			return deck.sort(() => Math.random() - 0.5);
-		}
-
-		function cardValue(card) {
-			if (card.value === 'A') return 11;
-			if (['J','Q','K'].includes(card.value)) return 10;
-			return parseInt(card.value, 10);
-		}
-
-		function handTotal(hand) {
-			let total = hand.reduce((sum, card) => sum + cardValue(card), 0);
-			let aces = hand.filter(card => card.value === 'A').length;
-			while (total > 21 && aces > 0) {
-				total -= 10;
-				aces -= 1;
-			}
-			return total;
-		}
-
-		function startBlackjack() {
-			const player = getPlayer(currentUser);
-			if (!player || player.balance < bet) { msg.textContent = 'Solde insuffisant.'; return; }
-			player.balance -= bet;
-			savePlayers();
-			blackjackState = {
-				deck: createDeck(),
-				player: [],
-				dealer: [],
-				bet,
-				inRound: true
-			};
-			blackjackState.player.push(blackjackState.deck.pop(), blackjackState.deck.pop());
-			blackjackState.dealer.push(blackjackState.deck.pop(), blackjackState.deck.pop());
-			updateUI();
-			updateBlackjackUI();
-			msg.textContent = 'Blackjack commencé. Tirez ou restez.';
-		}
-
-		function concludeBlackjack(result) {
-			const player = getPlayer(currentUser);
-			const betAmount = blackjackState.bet;
-			let payout = 0;
-			if (result === 'win') {
-				payout = betAmount * 2;
-				msg.textContent = `Vous gagnez la main ! +${betAmount} pièces.`;
-			} else if (result === 'push') {
-				payout = betAmount;
-				msg.textContent = 'Égalité ! Votre mise est rendue.';
-			} else {
-				msg.textContent = 'Perdu au blackjack. Bonnes chances pour la prochaine fois.';
-			}
-			if (payout) {
-				player.balance += payout;
-				savePlayers();
-			}
-			blackjackState = null;
-			updateUI();
-			updateBlackjackUI();
-		}
-
-		function blackjackHit() {
-			if (!blackjackState || !blackjackState.inRound) return;
-			blackjackState.player.push(blackjackState.deck.pop());
-			if (handTotal(blackjackState.player) > 21) {
-				blackjackState.inRound = false;
-				updateBlackjackUI();
-				concludeBlackjack('lose');
-				return;
-			}
-			updateBlackjackUI();
-			msg.textContent = 'Vous avez tiré une carte. Tirez encore ou restez.';
-		}
-
-		function blackjackStand() {
-			if (!blackjackState || !blackjackState.inRound) return;
-			blackjackState.inRound = false;
-			while (handTotal(blackjackState.dealer) < 17) {
-				blackjackState.dealer.push(blackjackState.deck.pop());
-			}
-			const playerTotal = handTotal(blackjackState.player);
-			const dealerTotal = handTotal(blackjackState.dealer);
-			if (dealerTotal > 21 || playerTotal > dealerTotal) {
-				concludeBlackjack('win');
-			} else if (playerTotal === dealerTotal) {
-				concludeBlackjack('push');
-			} else {
-				concludeBlackjack('lose');
-			}
-		}
-
-		function randomSymbol() {
-			return symbols[Math.floor(Math.random() * symbols.length)];
-		}
-
-		function getBalance() {
-			const player = getPlayer(currentUser);
-			return player ? player.balance : 0;
-		}
-
-		function setBalance(v) {
-			if (!currentUser) return;
-			players[currentUser].balance = Math.max(0, v);
-			savePlayers();
-			updateUI();
-		}
-
-		function login() {
-			const name = playerNameInput.value.trim();
-			if (!name) { msg.textContent = 'Entrez un pseudo valide.'; return; }
-			const player = getPlayer(name);
-			if (player) {
-				if (!player.approved) {
-					msg.textContent = 'Compte en attente de validation par un admin.';
-					return;
-				}
-				setCurrentUser(name);
-				return;
-			}
-			// Si aucun joueur n'existe encore, le premier créé devient automatiquement validé (admin)
-			const isFirst = Object.keys(players).length === 0;
-			players[name] = { balance: 100, bonusChance: 0, pending: [], approved: isFirst, isAdmin: isFirst };
-			savePlayers();
-			updateAdminList();
-			if (isFirst) {
-				setCurrentUser(name);
-				msg.textContent = `Compte créé et validé (admin): ${name}`;
-			} else {
-				msg.textContent = 'Pseudo enregistré. Un admin doit valider le compte avant connexion.';
-			}
-		}
-
-		function spin() {
-			if (!currentUser) { msg.textContent = 'Connectez-vous d'abord.'; return; }
-			if (currentGame === 'blackjack') { startBlackjack(); return; }
-			if (currentGame !== 'slots') { msg.textContent = 'Ce jeu n’est pas encore disponible.'; return; }
-			const player = getPlayer(currentUser);
-			if (!player || player.balance < bet) { msg.textContent = 'Solde insuffisant.'; return; }
-			spinBtn.disabled = true;
-			msg.textContent = 'Roulement...';
-			setBalance(player.balance - bet);
-			let duration = 1200;
-			let start = Date.now();
-			let iv = setInterval(() => {
-				r1.textContent = randomSymbol();
-				r2.textContent = randomSymbol();
-				r3.textContent = randomSymbol();
-				if (Date.now() - start > duration) { clearInterval(iv); settle(); }
-			}, 80);
-		}
-
-		function settle() {
-			const s1 = randomSymbol(), s2 = randomSymbol(), s3 = randomSymbol();
-			r1.textContent = s1; r2.textContent = s2; r3.textContent = s3;
-			const player = getPlayer(currentUser);
-			let payout = 0;
-			if (s1 === s2 && s2 === s3) payout = bet * 5;
-			else if (s1 === s2 || s1 === s3 || s2 === s3) payout = bet * 2;
-			const machineChance = getMachineChance('slots');
-			const luckySpin = Math.random() * 100 < machineChance;
-			if (luckySpin) {
-				payout = Math.max(payout, bet * 2);
-				msg.textContent = `Chance machine activée ! `;
-			}
-			if (Math.random() * 100 < player.bonusChance) {
-				payout += bet;
-				msg.textContent += `Bonus admin obtenu ! +${bet} pièces. `;
-			}
-			if (payout > 0) {
-				setBalance(player.balance + payout);
-				msg.textContent += `Vous gagnez ${payout} pièces !`;
-			} else {
-				msg.textContent = 'Perdu. Essayez encore.';
-			}
-			spinBtn.disabled = false;
-		}
-
-		function addPendingPurchase() {
-			const amount = Math.max(1, parseInt(buyAmountInput.value, 10) || 0);
-			if (!currentUser || amount <= 0) {
-				msg.textContent = 'Entrez un montant valide.';
-				return;
-			}
-			const player = getPlayer(currentUser);
-			player.pending.push({ id: Date.now() + '-' + Math.random().toString(36).slice(2), amount });
-			savePlayers();
-			updateAdminList();
-			msg.textContent = `Achat de ${amount} jetons en attente de validation.`;
-		}
-
-		function updateAdminList() {
-			adminMachineSelect.innerHTML = '';
-			adminPlayerSelect.innerHTML = '';
-			adminMachineList.innerHTML = '';
-			adminPlayerList.innerHTML = '';
-			adminAccountPendingList.innerHTML = '';
-			adminPendingList.innerHTML = '';
-			Object.keys(machineNames).forEach(machine => {
-				const option = document.createElement('option');
-				option.value = machine;
-				option.textContent = machineNames[machine];
-				adminMachineSelect.appendChild(option);
-
-				const item = document.createElement('div');
-				item.className = 'admin-item';
-				item.innerHTML = `<span>${machineNames[machine]}</span><span>Probabilité: ${getMachineChance(machine)}%</span>`;
-				adminMachineList.appendChild(item);
+		buyButtons.forEach(button=>{
+			button.addEventListener('click', ()=>{
+				const qty = Number(button.dataset.qty);
+				const cost = Number(button.dataset.cost);
+				createRequest(qty,cost);
 			});
-			const names = Object.keys(players);
-			names.forEach(name => {
-				const player = players[name];
-				if (player.approved) {
-					const option = document.createElement('option');
-					option.value = name;
-					option.textContent = name;
-					adminPlayerSelect.appendChild(option);
-				}
+		});
 
-				const item = document.createElement('div');
-				item.className = 'admin-item';
-				item.innerHTML = `<span>${name}</span><span>Solde: ${player.balance} | Bonus: ${player.bonusChance}% | Statut: ${player.approved ? 'Validé' : 'En attente'}</span>`;
-				adminPlayerList.appendChild(item);
-
-				if (!player.approved) {
-					const pendingAccount = document.createElement('div');
-					pendingAccount.className = 'admin-item';
-					pendingAccount.innerHTML = `<span>${name} demande la validation du compte</span><button data-player="${name}">Valider compte</button>`;
-					adminAccountPendingList.appendChild(pendingAccount);
-				}
-
-				player.pending.forEach(p => {
-					const pendingItem = document.createElement('div');
-					pendingItem.className = 'admin-item';
-					pendingItem.innerHTML = `<span>${name} demande ${p.amount} jetons</span><button data-player="${name}" data-id="${p.id}">Valider</button>`;
-					adminPendingList.appendChild(pendingItem);
-				});
-			});
-			if (adminPlayerSelect.children.length === 0) {
-				adminPlayerList.textContent = 'Aucun joueur enregistré.';
-			}
-			if (adminAccountPendingList.children.length === 0) {
-				adminAccountPendingList.textContent = 'Aucun compte en attente.';
-			}
-			if (adminPendingList.children.length === 0) {
-				adminPendingList.textContent = 'Aucun achat en attente.';
-			}
-			if (adminMachineSelect.children.length === 0) {
-				adminMachineList.textContent = 'Aucune machine configurée.';
-			}
-		}
-
-		function setAdminChance() {
-			const name = adminPlayerSelect.value;
-			const value = Math.max(0, Math.min(100, parseInt(adminChanceInput.value, 10) || 0));
-			if (!name) return;
-			players[name].bonusChance = value;
-			savePlayers();
-			updateUI();
-			msg.textContent = `Bonus joueur de ${value}% défini pour ${name}.`;
-		}
-
-		function setAdminMachineChance() {
-			const machine = adminMachineSelect.value;
-			const value = Math.max(0, Math.min(100, parseInt(adminMachineChanceInput.value, 10) || 0));
-			if (!machine) return;
-			setMachineChance(machine, value);
-			updateAdminList();
-			msg.textContent = `Probabilité ${value}% définie pour ${machineNames[machine]}.`;
-		}
-
-		function validatePending(event) {
-			if (event.target.tagName !== 'BUTTON') return;
-			const name = event.target.dataset.player;
-			const id = event.target.dataset.id;
-			const player = players[name];
-			if (!player) return;
-			const index = player.pending.findIndex(p => p.id === id);
-			if (index === -1) return;
-			const purchase = player.pending.splice(index, 1)[0];
-			player.balance += purchase.amount;
-			savePlayers();
-			updateUI();
-			updateAdminList();
-			msg.textContent = `Achat validé: ${purchase.amount} jetons pour ${name}.`;
-		}
-
-		function approveAccount(event) {
-			if (event.target.tagName !== 'BUTTON') return;
-			const name = event.target.dataset.player;
-			const player = players[name];
-			if (!player || player.approved) return;
-			player.approved = true;
-			savePlayers();
-			updateUI();
-			updateAdminList();
-			msg.textContent = `Compte ${name} validé par l'admin.`;
-		}
-
-		function toggleAdmin() {
-			// Permet l'ouverture du panneau admin si l'utilisateur est admin ou s'il n'y a pas d'admin
-			const admins = Object.values(players).filter(p => p.isAdmin);
-			const allow = (currentUser && players[currentUser] && players[currentUser].isAdmin) || admins.length === 0;
-			if (!allow) {
-				msg.textContent = 'Accès admin refusé. Vous devez être admin pour ouvrir ce panneau.';
+		saveProbBtn.addEventListener('click', ()=>{
+			const probability = Number(machineProbInput.value);
+			if(isNaN(probability) || probability < 0 || probability > 100){
+				shopMessage.textContent = 'Entrez une probabilité valide entre 0 et 100.';
 				return;
 			}
-			adminPanel.classList.toggle('active');
-			updateAdminList();
-		}
+			saveMachineProb(probability);
+			shopMessage.textContent = `Probabilité de gain mise à jour à ${probability}%.`;
+		});
 
-		window.addEventListener('keydown', e => {
-			if (e.key === '$') {
+		clearBtn.addEventListener('click', ()=>{
+			if(confirm('Effacer tous les utilisateurs, bannissements, demandes et soldes ?')){
+				localStorage.removeItem('casino_users');
+				localStorage.removeItem('casino_banned');
+				localStorage.removeItem('casino_requests');
+				localStorage.removeItem('casino_balances');
+				renderAll();
+			}
+		});
+
+		document.addEventListener('keydown', e=>{
+			if(e.ctrlKey && (e.key==='a' || e.key==='A')){
 				e.preventDefault();
-				toggleAdmin();
+				adminPanel.style.display = adminPanel.style.display === 'block' ? 'none' : 'block';
 			}
 		});
 
-		window.addEventListener('keyup', e => {
-			hotKeys.delete(e.code);
-		});
-
-		loginBtn.addEventListener('click', login);
-		document.getElementById('adminBtn').addEventListener('click', toggleAdmin);
-		spinBtn.addEventListener('click', spin);
-		betUp.addEventListener('click', () => { bet = Math.min(100, bet + 5); updateBet(); });
-		betDown.addEventListener('click', () => { bet = Math.max(1, bet - 5); updateBet(); });
-		buyTokensBtn.addEventListener('click', addPendingPurchase);
-		// Chat send handling (fix: messages not sending)
-		const chatSendBtn = document.getElementById('chatSend');
-		const chatInput = document.getElementById('chatInput');
-		const chatList = document.getElementById('chatList');
-		function sendChat() {
-			const txt = chatInput.value.trim();
-			if (!txt || !currentUser) {
-				msg.textContent = !currentUser ? 'Connectez-vous pour envoyer un message.' : 'Entrez un message.';
-				return;
-			}
-			const time = new Date().toLocaleTimeString();
-			const item = document.createElement('div');
-			item.textContent = `[${time}] ${currentUser}: ${txt}`;
-			chatList.appendChild(item);
-			chatList.scrollTop = chatList.scrollHeight;
-			chatInput.value = '';
-		}
-		chatSendBtn.addEventListener('click', sendChat);
-		chatInput.addEventListener('keydown', e => {
-			if (e.key === 'Enter') { e.preventDefault(); sendChat(); }
-		});
-		tabs.forEach(tab => tab.addEventListener('click', () => { location.hash = '#' + tab.dataset.game; }));
-		window.addEventListener('hashchange', () => setGameSection(location.hash.slice(1) || 'slots'));
-		hitBtn.addEventListener('click', blackjackHit);
-		standBtn.addEventListener('click', blackjackStand);
-		adminSetMachineChance.addEventListener('click', setAdminMachineChance);
-		adminSetChance.addEventListener('click', setAdminChance);
-		adminPendingList.addEventListener('click', validatePending);
-		adminAccountPendingList.addEventListener('click', approveAccount);
-		adminClose.addEventListener('click', toggleAdmin);
-		window.addEventListener('keydown', e => {
-			if (e.code === 'Space' && !adminPanel.classList.contains('active')) {
-				e.preventDefault();
-				spin();
-			}
-		});
-
-		const initialGame = location.hash.slice(1) || 'slots';
-		setGameSection(initialGame);
-		if (currentUser) updateUI();
-		updateAdminList();
+		renderAll();
 	</script>
 </body>
 </html>
+
 
