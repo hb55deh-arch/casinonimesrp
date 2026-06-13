@@ -6,57 +6,140 @@
   <title>Authentification</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      background: #f2f2f2;
       margin: 0;
+      background: radial-gradient(circle at top left, #6a8cff 0%, #1c3a8d 45%, #0f1c46 100%);
+      color: #f3f4f6;
     }
     .container {
-      background: #fff;
-      padding: 24px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      width: 320px;
+      background: rgba(15, 23, 42, 0.92);
+      padding: 30px;
+      border-radius: 24px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+      width: min(440px, 94vw);
+      border: 1px solid rgba(255, 255, 255, 0.12);
     }
     h1 {
       margin-top: 0;
+      font-size: 28px;
+      letter-spacing: 0.02em;
+    }
+    h2 {
+      margin: 0 0 12px;
       font-size: 22px;
+    }
+    h3 {
+      margin-top: 0;
+      color: #dbeafe;
     }
     label {
       display: block;
       margin-bottom: 8px;
-      font-weight: bold;
+      font-weight: 600;
+      color: #cbd5e1;
     }
-    input {
+    input[type="text"],
+    input[type="password"],
+    input[type="number"] {
       width: 100%;
-      padding: 10px;
+      padding: 12px 14px;
       margin-bottom: 16px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #f8fafc;
       box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+    input[type="text"]:focus,
+    input[type="password"]:focus,
+    input[type="number"]:focus {
+      border-color: #93c5fd;
+      transform: translateY(-1px);
     }
     button {
       width: 100%;
-      padding: 10px;
-      background: #007bff;
+      padding: 12px 14px;
+      background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
       border: none;
       color: white;
-      border-radius: 4px;
+      border-radius: 12px;
       cursor: pointer;
       font-size: 16px;
+      transition: transform 0.2s ease, filter 0.2s ease;
+      box-shadow: 0 10px 20px rgba(59, 130, 246, 0.25);
     }
     button:hover {
-      background: #0056b3;
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+    }
+    .nav-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0 14px;
+    }
+    .message,
+    .result,
+    .balance {
+      color: #e2e8f0;
+      margin-bottom: 16px;
     }
     .message {
-      color: red;
-      margin-bottom: 16px;
+      color: #f87171;
+      min-height: 20px;
+    }
+    .casino-section {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      padding: 18px;
+      margin-top: 12px;
+    }
+    .slot-machine {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 14px 0;
+    }
+    .reel {
+      width: 70px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      font-size: 28px;
+    }
+    .blackjack-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .blackjack-controls button {
+      width: auto;
+      flex: 1;
     }
     .hidden {
       display: none;
+    }
+    @media (max-width: 500px) {
+      .nav-buttons {
+        grid-template-columns: 1fr;
+      }
+      .slot-machine {
+        flex-direction: column;
+      }
+      .reel {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -158,36 +241,241 @@
     const messageEl = document.getElementById('message');
     const contentEl = document.getElementById('content');
     const balanceEl = document.getElementById('balance');
-    const navButtons = document.querySelectorAll('.nav-buttons button');
-    const sections = document.querySelectorAll('.casino-section');
+    const navButtonsContainer = document.querySelector('.nav-buttons');
 
-    const accounts = JSON.parse(localStorage.getItem('casinoAccounts') || '{"admin":"motdepasse123"}');
+    const adminButton = document.createElement('button');
+    adminButton.type = 'button';
+    adminButton.id = 'adminButton';
+    adminButton.textContent = 'Panel Admin';
+    adminButton.className = 'hidden';
+    adminButton.dataset.target = 'adminPanel';
+    navButtonsContainer.appendChild(adminButton);
+
+    const adminPanel = document.createElement('div');
+    adminPanel.id = 'adminPanel';
+    adminPanel.className = 'casino-section hidden';
+    adminPanel.innerHTML = `
+      <h3>Panel administrateur</h3>
+      <p>Gérer les comptes, valider les demandes et ajuster les probabilités.</p>
+      <div id="adminMessage" class="message"></div>
+      <div>
+        <h4>Comptes</h4>
+        <div id="accountsList" class="result"></div>
+      </div>
+      <div>
+        <h4>Donner des jetons</h4>
+        <label for="giveTokensUser">Pseudo</label>
+        <input type="text" id="giveTokensUser" placeholder="Pseudo du compte" />
+        <label for="giveTokensAmount">Jetons à donner</label>
+        <input type="number" id="giveTokensAmount" min="1" value="10" />
+        <button id="giveTokensButton" type="button">Donner</button>
+      </div>
+      <div>
+        <h4>Demandes d'achat en attente</h4>
+        <div id="pendingRequests" class="result"></div>
+      </div>
+      <div>
+        <h4>Probabilités des jeux</h4>
+        <label for="slotWeightCherry">Poids 🍒</label>
+        <input type="number" id="slotWeightCherry" min="0" value="1" />
+        <label for="slotWeightLemon">Poids 🍋</label>
+        <input type="number" id="slotWeightLemon" min="0" value="1" />
+        <label for="slotWeightSeven">Poids 7</label>
+        <input type="number" id="slotWeightSeven" min="0" value="1" />
+        <label for="slotWeightStar">Poids ⭐</label>
+        <input type="number" id="slotWeightStar" min="0" value="1" />
+        <label for="slotWeightClover">Poids 🍀</label>
+        <input type="number" id="slotWeightClover" min="0" value="1" />
+        <label for="scratchWinChance">Chance de gain tickets à gratter (%)</label>
+        <input type="number" id="scratchWinChance" min="0" max="100" value="40" />
+        <label for="lottoWinBias">Biais loto (%)</label>
+        <input type="number" id="lottoWinBias" min="0" max="100" value="0" />
+        <button id="saveSettingsButton" type="button">Enregistrer les paramètres</button>
+        <div id="settingsMessage" class="result"></div>
+      </div>
+    `;
+    contentEl.appendChild(adminPanel);
+
+    const navButtons = navButtonsContainer.querySelectorAll('button');
+    const sections = document.querySelectorAll('.casino-section');
+    const adminMessageEl = document.getElementById('adminMessage');
+    const accountsListEl = document.getElementById('accountsList');
+    const pendingRequestsEl = document.getElementById('pendingRequests');
+    const giveTokensUserEl = document.getElementById('giveTokensUser');
+    const giveTokensAmountEl = document.getElementById('giveTokensAmount');
+    const giveTokensButtonEl = document.getElementById('giveTokensButton');
+    const saveSettingsButtonEl = document.getElementById('saveSettingsButton');
+    const settingsMessageEl = document.getElementById('settingsMessage');
+    const slotWeightCherryEl = document.getElementById('slotWeightCherry');
+    const slotWeightLemonEl = document.getElementById('slotWeightLemon');
+    const slotWeightSevenEl = document.getElementById('slotWeightSeven');
+    const slotWeightStarEl = document.getElementById('slotWeightStar');
+    const slotWeightCloverEl = document.getElementById('slotWeightClover');
+    const scratchWinChanceEl = document.getElementById('scratchWinChance');
+    const lottoWinBiasEl = document.getElementById('lottoWinBias');
+
+    const storedAccountsRaw = localStorage.getItem('casinoAccounts');
+    const accounts = {};
+    if (storedAccountsRaw) {
+      try {
+        const parsedAccounts = JSON.parse(storedAccountsRaw);
+        Object.entries(parsedAccounts).forEach(([name, value]) => {
+          if (typeof value === 'string') {
+            accounts[name] = {
+              password: value,
+              tokens: 0,
+              role: name === 'admin' ? 'admin' : 'user'
+            };
+          } else {
+            accounts[name] = {
+              password: value.password || '',
+              tokens: typeof value.tokens === 'number' ? value.tokens : 0,
+              role: value.role || (name === 'admin' ? 'admin' : 'user')
+            };
+          }
+        });
+      } catch {
+        accounts.admin = { password: 'motdepasse123', tokens: 0, role: 'admin' };
+      }
+    } else {
+      accounts.admin = { password: 'motdepasse123', tokens: 0, role: 'admin' };
+    }
+
+    const settings = JSON.parse(localStorage.getItem('casinoSettings') || '{"slotWeights":{"🍒":1,"🍋":1,"7":1,"⭐":1,"🍀":1},"scratchWinChance":40,"lottoWinBias":0}');
+    const pendingPurchases = JSON.parse(localStorage.getItem('pendingPurchases') || '[]');
+
+    let currentUser = null;
+    let tokens = 0;
+    let blackjackState = null;
 
     function saveAccounts() {
       localStorage.setItem('casinoAccounts', JSON.stringify(accounts));
     }
 
-    let tokens = 0;
-    let blackjackState = null;
+    function saveSettings() {
+      localStorage.setItem('casinoSettings', JSON.stringify(settings));
+    }
+
+    function savePendingPurchases() {
+      localStorage.setItem('pendingPurchases', JSON.stringify(pendingPurchases));
+    }
 
     function updateBalance() {
+      if (currentUser) {
+        accounts[currentUser].tokens = tokens;
+        saveAccounts();
+      }
       balanceEl.textContent = `Jetons disponibles : ${tokens}`;
     }
 
     function showSection(id) {
       sections.forEach(section => section.classList.add('hidden'));
-      document.getElementById(id).classList.remove('hidden');
+      const target = document.getElementById(id);
+      if (target) target.classList.remove('hidden');
     }
 
-    const registerButton = document.getElementById('registerButton');
-    const createAccountButton = document.getElementById('createAccountButton');
-    const cancelRegisterButton = document.getElementById('cancelRegisterButton');
+    function updateAdminAccess() {
+      if (currentUser && accounts[currentUser]?.role === 'admin') {
+        adminButton.classList.remove('hidden');
+      } else {
+        adminButton.classList.add('hidden');
+      }
+    }
+
+    function renderAccountsList() {
+      if (!accountsListEl) return;
+      const rows = Object.entries(accounts).map(([name, data]) => {
+        return `<div>${name} - rôle : ${data.role} - jetons : ${data.tokens}</div>`;
+      }).join('');
+      accountsListEl.innerHTML = rows || '<div>Aucun compte.</div>';
+    }
+
+    function renderPendingRequests() {
+      if (!pendingRequestsEl) return;
+      if (pendingPurchases.length === 0) {
+        pendingRequestsEl.textContent = 'Aucune demande en attente.';
+        return;
+      }
+      pendingRequestsEl.innerHTML = pendingPurchases.map((request, index) => {
+        return `
+          <div style="margin-bottom: 10px;">
+            ${request.username} demande ${request.amount} jetons
+            <button data-action="approve" data-index="${index}" type="button">Valider</button>
+            <button data-action="decline" data-index="${index}" type="button">Refuser</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderAdminPanel() {
+      renderAccountsList();
+      renderPendingRequests();
+      if (slotWeightCherryEl) slotWeightCherryEl.value = settings.slotWeights['🍒'] || 1;
+      if (slotWeightLemonEl) slotWeightLemonEl.value = settings.slotWeights['🍋'] || 1;
+      if (slotWeightSevenEl) slotWeightSevenEl.value = settings.slotWeights['7'] || 1;
+      if (slotWeightStarEl) slotWeightStarEl.value = settings.slotWeights['⭐'] || 1;
+      if (slotWeightCloverEl) slotWeightCloverEl.value = settings.slotWeights['🍀'] || 1;
+      if (scratchWinChanceEl) scratchWinChanceEl.value = settings.scratchWinChance || 40;
+      if (lottoWinBiasEl) lottoWinBiasEl.value = settings.lottoWinBias || 0;
+    }
+
+    function openAdminPanel() {
+      if (currentUser && accounts[currentUser]?.role === 'admin') {
+        showSection('adminPanel');
+        renderAdminPanel();
+      }
+    }
+
+    function weightedRandomSymbol() {
+      const entries = Object.entries(settings.slotWeights).filter(([, weight]) => weight > 0);
+      const totalWeight = entries.reduce((sum, [, weight]) => sum + weight, 0);
+      let random = Math.random() * totalWeight;
+      for (const [symbol, weight] of entries) {
+        if (random < weight) return symbol;
+        random -= weight;
+      }
+      return entries[0]?.[0] || '🍒';
+    }
+
+    function createDeck() {
+      const cards = [];
+      for (let i = 1; i <= 10; i++) cards.push(i);
+      cards.push(10, 10, 10);
+      return cards;
+    }
+
+    function totalHand(hand) {
+      return hand.reduce((sum, card) => sum + card, 0);
+    }
 
     navButtons.forEach(button => {
       button.addEventListener('click', () => {
         showSection(button.dataset.target);
       });
     });
+
+    adminButton.addEventListener('click', openAdminPanel);
+
+    let adminShortcutState = 0;
+    document.addEventListener('keydown', (event) => {
+      if (!event.ctrlKey) {
+        adminShortcutState = 0;
+        return;
+      }
+      const key = event.key.toLowerCase();
+      if (key === 'a') {
+        adminShortcutState = 1;
+      } else if (key === 'e' && adminShortcutState === 1) {
+        openAdminPanel();
+        adminShortcutState = 0;
+      } else {
+        adminShortcutState = 0;
+      }
+    });
+
+    const registerButton = document.getElementById('registerButton');
+    const createAccountButton = document.getElementById('createAccountButton');
+    const cancelRegisterButton = document.getElementById('cancelRegisterButton');
 
     registerButton.addEventListener('click', () => {
       loginForm.classList.add('hidden');
@@ -212,13 +500,14 @@
         messageEl.textContent = 'Ce pseudo existe déjà.';
         return;
       }
-      accounts[username] = password;
+      accounts[username] = { password, tokens: 0, role: 'user' };
       saveAccounts();
       messageEl.textContent = 'Compte créé avec succès. Connectez-vous.';
       registerForm.classList.add('hidden');
       loginForm.classList.remove('hidden');
       document.getElementById('registerUsername').value = '';
       document.getElementById('registerPassword').value = '';
+      if (currentUser && accounts[currentUser]?.role === 'admin') renderAdminPanel();
     });
 
     loginForm.addEventListener('submit', function(event) {
@@ -232,7 +521,11 @@
         return;
       }
 
-      if (accounts[username] && accounts[username] === password) {
+      if (accounts[username] && accounts[username].password === password) {
+        currentUser = username;
+        tokens = accounts[username].tokens || 0;
+        updateBalance();
+        updateAdminAccess();
         messageEl.textContent = '';
         contentEl.classList.remove('hidden');
         loginForm.classList.add('hidden');
@@ -246,13 +539,21 @@
     document.getElementById('buyButton').addEventListener('click', () => {
       const amount = parseInt(document.getElementById('tokenAmount').value, 10);
       const buyMessage = document.getElementById('buyMessage');
+      if (!currentUser) {
+        buyMessage.textContent = 'Veuillez vous connecter pour acheter des jetons.';
+        return;
+      }
       if (isNaN(amount) || amount < 1) {
         buyMessage.textContent = 'Veuillez entrer un nombre de jetons valide.';
         return;
       }
-      tokens += amount;
-      updateBalance();
-      buyMessage.textContent = `Vous avez acheté ${amount} jetons.`;
+      pendingPurchases.push({ username: currentUser, amount, id: Date.now() });
+      savePendingPurchases();
+      buyMessage.textContent = `Demande d'achat de ${amount} jetons envoyée à l'administrateur.`;
+      if (accounts[currentUser].role === 'admin') {
+        buyMessage.textContent += ' (en attente de validation)';
+      }
+      if (currentUser && accounts[currentUser]?.role === 'admin') renderAdminPanel();
     });
 
     document.getElementById('spinButton').addEventListener('click', () => {
@@ -261,12 +562,7 @@
         slotResult.textContent = 'Vous avez besoin d au moins 1 jeton pour jouer.';
         return;
       }
-      const symbols = ['🍒', '🍋', '7', '⭐', '🍀'];
-      const reels = [
-        symbols[Math.floor(Math.random() * symbols.length)],
-        symbols[Math.floor(Math.random() * symbols.length)],
-        symbols[Math.floor(Math.random() * symbols.length)]
-      ];
+      const reels = [weightedRandomSymbol(), weightedRandomSymbol(), weightedRandomSymbol()];
       reelEls.forEach((el, index) => {
         if (el) el.textContent = reels[index];
       });
@@ -285,17 +581,6 @@
       if (tokens < 0) tokens = 0;
       updateBalance();
     });
-
-    function createDeck() {
-      const cards = [];
-      for (let i = 1; i <= 10; i++) cards.push(i);
-      cards.push(10, 10, 10);
-      return cards;
-    }
-
-    function totalHand(hand) {
-      return hand.reduce((sum, card) => sum + card, 0);
-    }
 
     document.getElementById('dealButton').addEventListener('click', () => {
       const blackjackInfo = document.getElementById('blackjackInfo');
@@ -363,7 +648,26 @@
         return;
       }
       tokens -= 2;
-      const values = [0, 0, 0].map(() => Math.floor(Math.random() * 5));
+      const winRoll = Math.random() * 100;
+      let values;
+      if (winRoll < settings.scratchWinChance) {
+        const first = Math.floor(Math.random() * 5);
+        if (Math.random() < 0.25) {
+          values = [first, first, first];
+        } else {
+          let second = Math.floor(Math.random() * 5);
+          while (second === first) {
+            second = Math.floor(Math.random() * 5);
+          }
+          values = [first, first, second];
+        }
+      } else {
+        values = [];
+        while (values.length < 3) {
+          const value = Math.floor(Math.random() * 5);
+          if (!values.includes(value)) values.push(value);
+        }
+      }
       const matches = values.filter(v => v === values[0]).length === 3 ? 3 : (values[0] === values[1] || values[1] === values[2] || values[0] === values[2]) ? 2 : 0;
       let prize = 0;
       if (matches === 3) prize = 50;
@@ -405,6 +709,10 @@
       }
       tokens -= 5;
       const draw = [];
+      if (Math.random() * 100 < settings.lottoWinBias) {
+        const forced = selected[Math.floor(Math.random() * selected.length)];
+        draw.push(forced);
+      }
       while (draw.length < 5) {
         const number = Math.floor(Math.random() * 20) + 1;
         if (!draw.includes(number)) draw.push(number);
@@ -418,7 +726,73 @@
       lottoResult.textContent = `Tirage : ${draw.join(', ')} - Correspondances : ${matches} - Gain : ${prize} jetons`;
       updateBalance();
     });
+
+    pendingRequestsEl.addEventListener('click', (event) => {
+      if (!event.target.dataset || !event.target.dataset.action) return;
+      const index = Number(event.target.dataset.index);
+      const request = pendingPurchases[index];
+      if (!request) return;
+      if (event.target.dataset.action === 'approve') {
+        if (accounts[request.username]) {
+          accounts[request.username].tokens = (accounts[request.username].tokens || 0) + request.amount;
+          saveAccounts();
+          if (request.username === currentUser) {
+            tokens = accounts[currentUser].tokens;
+            updateBalance();
+          }
+          adminMessageEl.textContent = `${request.amount} jetons ajoutés à ${request.username}.`;
+        } else {
+          adminMessageEl.textContent = 'Compte introuvable pour cette demande.';
+        }
+        pendingPurchases.splice(index, 1);
+        savePendingPurchases();
+        renderPendingRequests();
+        renderAccountsList();
+      }
+      if (event.target.dataset.action === 'decline') {
+        pendingPurchases.splice(index, 1);
+        savePendingPurchases();
+        adminMessageEl.textContent = 'Demande refusée.';
+        renderPendingRequests();
+      }
+    });
+
+    giveTokensButtonEl.addEventListener('click', () => {
+      adminMessageEl.textContent = '';
+      const target = giveTokensUserEl.value.trim();
+      const amount = parseInt(giveTokensAmountEl.value, 10);
+      if (!target || isNaN(amount) || amount < 1) {
+        adminMessageEl.textContent = 'Veuillez indiquer un pseudo et un montant valides.';
+        return;
+      }
+      if (!accounts[target]) {
+        adminMessageEl.textContent = 'Compte introuvable.';
+        return;
+      }
+      accounts[target].tokens = (accounts[target].tokens || 0) + amount;
+      saveAccounts();
+      adminMessageEl.textContent = `${amount} jetons ajoutés à ${target}.`;
+      renderAccountsList();
+      if (target === currentUser) {
+        tokens = accounts[currentUser].tokens;
+        updateBalance();
+      }
+    });
+
+    saveSettingsButtonEl.addEventListener('click', () => {
+      settings.slotWeights['🍒'] = parseInt(slotWeightCherryEl.value, 10) || 0;
+      settings.slotWeights['🍋'] = parseInt(slotWeightLemonEl.value, 10) || 0;
+      settings.slotWeights['7'] = parseInt(slotWeightSevenEl.value, 10) || 0;
+      settings.slotWeights['⭐'] = parseInt(slotWeightStarEl.value, 10) || 0;
+      settings.slotWeights['🍀'] = parseInt(slotWeightCloverEl.value, 10) || 0;
+      settings.scratchWinChance = Math.min(100, Math.max(0, parseInt(scratchWinChanceEl.value, 10) || 0));
+      settings.lottoWinBias = Math.min(100, Math.max(0, parseInt(lottoWinBiasEl.value, 10) || 0));
+      saveSettings();
+      settingsMessageEl.textContent = 'Paramètres enregistrés.';
+      renderAdminPanel();
+    });
   </script>
 </body>
 </html>
+
 
