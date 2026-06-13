@@ -682,6 +682,9 @@
       }
       accounts[username] = { password, tokens: 0, role: 'user' };
       saveAccounts();
+      
+      renderAccountsList();
+      
       messageEl.textContent = 'Compte créé avec succès. Connectez-vous.';
       registerForm.classList.add('hidden');
       loginForm.classList.remove('hidden');
@@ -1002,4 +1005,5 @@
   </script>
 </body>
 </html>
+
 
