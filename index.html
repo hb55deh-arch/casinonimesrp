@@ -5,8 +5,8 @@
 	<meta name="viewport" content="width=device-width,initial-scale=1">
 	<title>Casino de Nîmes RP - Machine à Sous</title>
 	<style>
-		body{font-family:Segoe UI,Arial,sans-serif;background:#041107;color:#e4ffe8;margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;background-image:radial-gradient(circle at top left,rgba(75,255,133,.16),transparent 18%),radial-gradient(circle at bottom right,rgba(35,255,120,.12),transparent 20%)}
-		.casino{background:linear-gradient(180deg,rgba(6,18,10,.98),rgba(3,8,5,.98));padding:26px;border-radius:16px;box-shadow:0 18px 50px rgba(0,255,140,.12),0 0 80px rgba(0,255,120,.04);width:380px;border:1px solid rgba(62,255,134,.10);backdrop-filter:blur(6px)}
+		body{font-family:Segoe UI,Arial,sans-serif;background:#041107;color:#e4ffe8;margin:0;display:block;min-height:100vh;background-image:radial-gradient(circle at top left,rgba(75,255,133,.16),transparent 18%),radial-gradient(circle at bottom right,rgba(35,255,120,.12),transparent 20%)}
+		.casino{background:linear-gradient(180deg,rgba(6,18,10,.98),rgba(3,8,5,.98));padding:26px;border-radius:0;box-shadow:none;width:100vw;height:100vh;border:0;backdrop-filter:blur(6px)}
 		h1{font-size:20px;margin:0 0 12px;text-align:center;color:#e9ffea;display:flex;flex-direction:column;align-items:center;gap:6px}
 		.logo{font-weight:800;letter-spacing:0.6px;padding:6px 14px;border-radius:999px;background:linear-gradient(90deg,rgba(19,220,110,.14),rgba(23,200,100,.06));box-shadow:0 6px 18px rgba(24,220,120,.06),inset 0 -6px 18px rgba(0,0,0,.08);color:#dfffe3}
 		.neon{position:relative}
@@ -162,8 +162,13 @@
 	<script>
 		const symbols = ['🍒','🍋','🔔','⭐','7️⃣'];
 		const players = JSON.parse(localStorage.getItem('casinoPlayers') || '{}');
+		// Normalize stored player objects to ensure required properties exist
 		Object.values(players).forEach(player => {
 			if (player.approved === undefined) player.approved = true;
+			if (player.pending === undefined) player.pending = [];
+			if (player.bonusChance === undefined) player.bonusChance = 0;
+			if (player.balance === undefined) player.balance = 100;
+			if (player.isAdmin === undefined) player.isAdmin = false;
 		});
 		let currentUser = localStorage.getItem('casinoUser') || '';
 		if (currentUser && players[currentUser] && !players[currentUser].approved) {
@@ -674,6 +679,27 @@
 		betUp.addEventListener('click', () => { bet = Math.min(100, bet + 5); updateBet(); });
 		betDown.addEventListener('click', () => { bet = Math.max(1, bet - 5); updateBet(); });
 		buyTokensBtn.addEventListener('click', addPendingPurchase);
+		// Chat send handling (fix: messages not sending)
+		const chatSendBtn = document.getElementById('chatSend');
+		const chatInput = document.getElementById('chatInput');
+		const chatList = document.getElementById('chatList');
+		function sendChat() {
+			const txt = chatInput.value.trim();
+			if (!txt || !currentUser) {
+				msg.textContent = !currentUser ? 'Connectez-vous pour envoyer un message.' : 'Entrez un message.';
+				return;
+			}
+			const time = new Date().toLocaleTimeString();
+			const item = document.createElement('div');
+			item.textContent = `[${time}] ${currentUser}: ${txt}`;
+			chatList.appendChild(item);
+			chatList.scrollTop = chatList.scrollHeight;
+			chatInput.value = '';
+		}
+		chatSendBtn.addEventListener('click', sendChat);
+		chatInput.addEventListener('keydown', e => {
+			if (e.key === 'Enter') { e.preventDefault(); sendChat(); }
+		});
 		tabs.forEach(tab => tab.addEventListener('click', () => { location.hash = '#' + tab.dataset.game; }));
 		window.addEventListener('hashchange', () => setGameSection(location.hash.slice(1) || 'slots'));
 		hitBtn.addEventListener('click', blackjackHit);
@@ -697,3 +723,4 @@
 	</script>
 </body>
 </html>
+
