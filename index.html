@@ -216,7 +216,22 @@
 			renderRequests();
 		}
 
-		function playSlotMachine(){
+		function playSlotMachineFinalize(){
+			// finalize after animation
+			const balances = loadBalances();
+			const amount = balances[currentUser]||0;
+			const prob = loadMachineProb();
+			const win = Math.random()*100 < prob;
+			balances[currentUser] = amount - 1 + (win ? 5 : 0);
+			saveBalances(balances);
+			updateBalanceDisplay();
+			slotResult.textContent = win ? '🎉 Bravo ! Vous gagnez 5 jetons.' : '😢 Perdu. Essayez encore.';
+			shopMessage.textContent = '';
+			playSlotBtn.disabled = false;
+			playSlotBtn.textContent = 'Jouer 1 jeton';
+		}
+
+		playSlotBtn.addEventListener('click', ()=>{
 			if(!currentUser){
 				shopMessage.textContent = 'Connectez-vous avant de jouer.';
 				return;
@@ -227,14 +242,27 @@
 				shopMessage.textContent = 'Vous n\'avez pas assez de jetons pour jouer.';
 				return;
 			}
-			const prob = loadMachineProb();
-			const win = Math.random()*100 < prob;
-			balances[currentUser] = amount - 1 + (win ? 5 : 0);
-			saveBalances(balances);
-			updateBalanceDisplay();
-			slotResult.textContent = win ? 'Bravo ! Vous gagnez 5 jetons.' : 'Perdu. Essayez encore.';
-			shopMessage.textContent = '';
-		}
+			// start animation
+			playSlotBtn.disabled = true;
+			playSlotBtn.textContent = 'Lancement...';
+			slotResult.style.color = '#f1c40f';
+			let symbols = ['🍒','🍋','🔔','⭐','7️⃣'];
+			let i = 0;
+			const start = Date.now();
+			slotResult.textContent = symbols[0] + ' ' + symbols[1] + ' ' + symbols[2];
+			const interval = setInterval(()=>{
+				slotResult.textContent = symbols[i%symbols.length] + ' ' + symbols[(i+1)%symbols.length] + ' ' + symbols[(i+2)%symbols.length];
+				i++;
+				// simple flicker color
+				slotResult.style.opacity = slotResult.style.opacity === '0.6' ? '1' : '0.6';
+			},80);
+			setTimeout(()=>{
+				clearInterval(interval);
+				slotResult.style.opacity = '1';
+				// finalize result (consumes token and possibly awards)
+				playSlotMachineFinalize();
+			},1200);
+		});
 
 		function renderMachineProb(){
 			machineProbInput.value = loadMachineProb();
@@ -257,7 +285,14 @@
 				return;
 			}
 			const users = loadUsers();
-			if(!users.includes(name)) { users.push(name); saveUsers(users); }
+			// Allow only a single pseudo in the system
+			if(users.length === 0){
+				users.push(name);
+				saveUsers(users);
+			} else if(!users.includes(name)){
+				message.textContent = 'Un seul pseudo est autorisé. Connectez-vous avec le pseudo existant.';
+				return;
+			}
 			currentUser = name;
 			message.style.display='none';
 			shopPage.style.display='block';
@@ -307,5 +342,4 @@
 	</script>
 </body>
 </html>
-
 
