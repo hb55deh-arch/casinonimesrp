@@ -101,6 +101,88 @@
       padding: 18px;
       margin-top: 12px;
     }
+    /* Decorations for each game */
+    .casino-section[data-game="slot"] {
+      background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,200,200,0.02));
+      border-image: linear-gradient(90deg,#ffd1dc,#ffd27a) 1;
+      box-shadow: 0 8px 30px rgba(255, 160, 122, 0.06), inset 0 1px 0 rgba(255,255,255,0.02);
+      position: relative;
+      overflow: hidden;
+    }
+    .casino-section[data-game="slot"] .reel { border-radius: 14px; background: linear-gradient(180deg,#fffafa22,#ffffff08); }
+    .casino-section[data-game="slot"]:before {
+      content: "🎰";
+      position: absolute; right: 12px; top: 8px; font-size: 48px; opacity: 0.12; transform: rotate(-10deg);
+    }
+
+    .casino-section[data-game="scratch"] {
+      background: linear-gradient(180deg, rgba(230,230,230,0.02), rgba(200,200,200,0.01));
+      border: 1px solid rgba(255, 240, 200, 0.06);
+      position: relative;
+      overflow: hidden;
+    }
+    .casino-section[data-game="scratch"]:before {
+      content: "🪙"; position: absolute; left: 12px; top: 8px; font-size: 42px; opacity: 0.12;
+    }
+
+    .casino-section[data-game="lottery"] {
+      background: linear-gradient(135deg, rgba(220,240,255,0.02), rgba(200,230,255,0.01));
+      border: 1px solid rgba(160,200,255,0.06);
+      position: relative;
+      overflow: hidden;
+    }
+    .casino-section[data-game="lottery"]:before { content: "🎟️"; position: absolute; right: 12px; bottom: 8px; font-size: 40px; opacity: 0.12; }
+
+    .casino-section[data-game="blackjack"] {
+      background: linear-gradient(135deg, rgba(30,40,30,0.04), rgba(10,20,10,0.02));
+      border: 1px solid rgba(120,255,170,0.06);
+      position: relative;
+      overflow: hidden;
+    }
+    .casino-section[data-game="blackjack"]:before { content: "🂡"; position: absolute; left: 10px; bottom: 10px; font-size: 44px; opacity: 0.12; }
+
+    /* Small decorative accents */
+    .decor-header { display:flex; align-items:center; gap:8px; margin-bottom:10px }
+    .decor-badge { background: rgba(255,255,255,0.04); padding:6px 10px; border-radius:999px; font-weight:700 }
+    /* Admin panel styles */
+    .admin-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .admin-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .accounts-list {
+      max-height: 160px;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .account-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.12);
+    }
+    .account-info { font-size: 14px; color: #e6eef8; }
+    .btn-small {
+      padding: 6px 8px;
+      font-size: 13px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.06);
+      color: #fff;
+      cursor: pointer;
+    }
     .slot-machine {
       display: flex;
       justify-content: space-between;
@@ -118,6 +200,7 @@
       border-radius: 18px;
       font-size: 28px;
     }
+    .reel:after { content: ""; position:absolute; inset:0; border-radius:16px; box-shadow: inset 0 6px 18px rgba(255,255,255,0.02); pointer-events:none }
     .blackjack-controls {
       display: flex;
       gap: 10px;
@@ -262,41 +345,64 @@
       <h3>Panel administrateur</h3>
       <p>Gérer les comptes, valider les demandes et ajuster les probabilités.</p>
       <div id="adminMessage" class="message"></div>
-      <div>
-        <h4>Comptes</h4>
-        <div id="accountsList" class="result"></div>
-      </div>
-      <div>
-        <h4>Donner des jetons</h4>
-        <label for="giveTokensUser">Pseudo</label>
-        <input type="text" id="giveTokensUser" placeholder="Pseudo du compte" />
-        <label for="giveTokensAmount">Jetons à donner</label>
-        <input type="number" id="giveTokensAmount" min="1" value="10" />
-        <button id="giveTokensButton" type="button">Donner</button>
-      </div>
-      <div>
-        <h4>Demandes d'achat en attente</h4>
-        <div id="pendingRequests" class="result"></div>
-      </div>
-      <div>
-        <h4>Probabilités des jeux</h4>
-        <label for="slotWeightCherry">Poids 🍒</label>
-        <input type="number" id="slotWeightCherry" min="0" value="1" />
-        <label for="slotWeightLemon">Poids 🍋</label>
-        <input type="number" id="slotWeightLemon" min="0" value="1" />
-        <label for="slotWeightSeven">Poids 7</label>
-        <input type="number" id="slotWeightSeven" min="0" value="1" />
-        <label for="slotWeightStar">Poids ⭐</label>
-        <input type="number" id="slotWeightStar" min="0" value="1" />
-        <label for="slotWeightClover">Poids 🍀</label>
-        <input type="number" id="slotWeightClover" min="0" value="1" />
-        <label for="scratchWinChance">Chance de gain tickets à gratter (%)</label>
-        <input type="number" id="scratchWinChance" min="0" max="100" value="40" />
-        <label for="lottoWinBias">Biais loto (%)</label>
-        <input type="number" id="lottoWinBias" min="0" max="100" value="0" />
-        <button id="saveSettingsButton" type="button">Enregistrer les paramètres</button>
-        <div id="settingsMessage" class="result"></div>
-      </div>
+      <div class="admin-grid">
+        <div class="admin-card">
+          <h4 style="margin-top:0">Comptes</h4>
+          <div id="accountsList" class="accounts-list"></div>
+        </div>
+        <div class="admin-card">
+          <h4 style="margin-top:0">Donner des jetons</h4>
+          <label for="giveTokensUser">Pseudo</label>
+          <input type="text" id="giveTokensUser" placeholder="Pseudo du compte" />
+          <label for="giveTokensAmount">Jetons à donner</label>
+          <input type="number" id="giveTokensAmount" min="1" value="10" />
+          <div style="margin-top:8px;"><button id="giveTokensButton" class="btn-small" type="button">Donner</button></div>
+        </div>
+
+        <div class="admin-card" style="grid-column: span 2">
+          <h4 style="margin-top:0">Demandes d'achat en attente</h4>
+          <div id="pendingRequests" class="result"></div>
+        </div>
+
+        <div class="admin-card" style="grid-column: span 2">
+          <h4 style="margin-top:0">Probabilités des jeux</h4>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <div style="flex:1;min-width:120px">
+              <label for="slotWeightCherry">Poids 🍒</label>
+              <input type="number" id="slotWeightCherry" min="0" value="1" />
+            </div>
+            <div style="flex:1;min-width:120px">
+              <label for="slotWeightLemon">Poids 🍋</label>
+              <input type="number" id="slotWeightLemon" min="0" value="1" />
+            </div>
+            <div style="flex:1;min-width:120px">
+              <label for="slotWeightSeven">Poids 7</label>
+              <input type="number" id="slotWeightSeven" min="0" value="1" />
+            </div>
+            <div style="flex:1;min-width:120px">
+              <label for="slotWeightStar">Poids ⭐</label>
+              <input type="number" id="slotWeightStar" min="0" value="1" />
+            </div>
+            <div style="flex:1;min-width:120px">
+              <label for="slotWeightClover">Poids 🍀</label>
+              <input type="number" id="slotWeightClover" min="0" value="1" />
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+            <div style="flex:1;min-width:180px">
+              <label for="scratchWinChance">Chance tickets (%)</label>
+              <input type="number" id="scratchWinChance" min="0" max="100" value="40" />
+            </div>
+            <div style="flex:1;min-width:180px">
+              <label for="lottoWinBias">Biais loto (%)</label>
+              <input type="number" id="lottoWinBias" min="0" max="100" value="0" />
+            </div>
+            <div>
+              <button id="saveSettingsButton" class="btn-small" type="button">Enregistrer</button>
+            </div>
+          </div>
+          <div id="settingsMessage" class="result" style="margin-top:8px"></div>
+        </div>
     `;
     contentEl.appendChild(adminPanel);
 
@@ -339,10 +445,10 @@
           }
         });
       } catch {
-        accounts.admin = { password: 'motdepasse123', tokens: 0, role: 'admin' };
+        accounts.admin = { password: '123', tokens: 0, role: 'admin' };
       }
     } else {
-      accounts.admin = { password: 'motdepasse123', tokens: 0, role: 'admin' };
+      accounts.admin = { password: '123', tokens: 0, role: 'admin' };
     }
 
     const settings = JSON.parse(localStorage.getItem('casinoSettings') || '{"slotWeights":{"🍒":1,"🍋":1,"7":1,"⭐":1,"🍀":1},"scratchWinChance":40,"lottoWinBias":0}');
