@@ -72,6 +72,41 @@
 			<h3>Mes achats en attente</h3>
 			<div class="user-list" id="pendingList"></div>
 		</div>
+		
+		<!-- Admin Panel -->
+		<div class="admin" id="adminPanel">
+			<h3>Admin Panel</h3>
+			<div class="game-nav admin-nav">
+				<button class="adminBtn active" data-admin="validation">Validation achats</button>
+				<button class="adminBtn" data-admin="users">Utilisateurs</button>
+				<button class="adminBtn" data-admin="probabilities">Probabilités jeux</button>
+				<button class="adminBtn" data-admin="give">Donner jetons</button>
+			</div>
+			<div id="adminContent" style="margin-top:8px">
+				<div class="admin-section" data-section="validation">
+					<p>Liste des achats à valider :</p>
+					<div class="user-list" id="adminPending"></div>
+				</div>
+				<div class="admin-section" data-section="users" style="display:none">
+					<p>Liste des utilisateurs :</p>
+					<div class="user-list" id="adminUsers"></div>
+				</div>
+				<div class="admin-section" data-section="probabilities" style="display:none">
+					<p>Probabilités des jeux (modifiable) :</p>
+					<div id="probControls">
+						<label>Machine à sous: <input type="text" id="probSlot" value="0.05" /></label><br/>
+						<label>Blackjack: <input type="text" id="probBlack" value="0.42" /></label><br/>
+						<label>Poker: <input type="text" id="probPoker" value="0.10" /></label><br/>
+						<label>Ticket à gratter: <input type="text" id="probScratch" value="0.12" /></label>
+					</div>
+				</div>
+				<div class="admin-section" data-section="give" style="display:none">
+					<p>Donner des jetons :</p>
+					<input type="text" id="giveUser" placeholder="Pseudo" /> <input type="number" id="giveAmount" placeholder="Quantité" /> <button id="giveBtn">Donner</button>
+					<p id="giveMsg" style="margin-top:8px"></p>
+				</div>
+			</div>
+		</div>
 	</div>
 
 	<div class="container" id="slotPage" style="display:none">
@@ -142,7 +177,21 @@
 			<button class="navBtn" data-page="scratchPage">Ticket à gratter</button>
 			<button class="navBtn" data-page="lotteryPage">Loterie</button>
 		</div>
-		<p>Black Jack sera disponible bientôt.</p>
+		<p>Jouez au Black Jack contre le croupier.</p>
+		<div style="margin-top:8px">
+			<label for="bjBet">Mise :</label>
+			<input id="bjBet" type="number" min="1" value="1" style="width:80px;margin-left:8px" />
+			<button id="dealBjBtn">Distribuer</button>
+		</div>
+		<div id="bjArea" style="margin-top:12px;display:none">
+			<p><strong>Votre main:</strong> <span id="playerCards"></span> (<span id="playerTotal">0</span>)</p>
+			<p><strong>Croupier:</strong> <span id="dealerCards"></span> (<span id="dealerTotal">0</span>)</p>
+			<div>
+				<button id="hitBtn">Tirer</button>
+				<button id="standBtn">Rester</button>
+			</div>
+			<p id="bjMessage" style="margin-top:8px;color:#f1c40f"></p>
+		</div>
 	</div>
 
 	<div class="container" id="pokerPage" style="display:none">
@@ -347,16 +396,45 @@
 			renderRequests();
 		}
 
-		function playSlotMachineFinalize(){
-			// finalize after animation
+		// More realistic slot: three independent reels, weighted symbols and staggered stops
+		function spinWeighted(symbols){
+			const total = symbols.reduce((s,it)=>s+it.weight,0);
+			let r = Math.random()*total;
+			for(const it of symbols){
+				if(r < it.weight) return it.symbol;
+				r -= it.weight;
+			}
+			return symbols[symbols.length-1].symbol;
+		}
+
+		function playSlotMachineFinalize(resultSymbols){
 			const balances = loadBalances();
 			const amount = balances[currentUser]||0;
-			const prob = loadMachineProb();
-			const win = Math.random()*100 < prob;
-			balances[currentUser] = amount - 1 + (win ? 5 : 0);
+			// cost 1 token
+			balances[currentUser] = amount - 1;
+
+			// payout rules
+			const [a,b,c] = resultSymbols;
+			let payout = 0;
+			if(a===b && b===c){
+				if(a==='7️⃣') payout = 50; // jackpot
+				else if(a==='🔔') payout = 20;
+				else payout = 10; // any three same
+			} else if(a===b || b===c || a===c){
+				payout = 3; // two of a kind
+			}
+
+			balances[currentUser] += payout;
 			saveBalances(balances);
 			updateBalanceDisplay();
-			slotResult.textContent = win ? '🎉 Bravo ! Vous gagnez 5 jetons.' : '😢 Perdu. Essayez encore.';
+
+			if(payout>0){
+				slotResult.style.color = '#2ecc71';
+				slotResult.textContent = `Résultat : ${resultSymbols.join(' ')} - 🎉 Vous gagnez ${payout} jetons !`;
+			} else {
+				slotResult.style.color = '#f1c40f';
+				slotResult.textContent = `Résultat : ${resultSymbols.join(' ')} - 😢 Perdu.`;
+			}
 			shopMessage.textContent = '';
 			playSlotBtn.disabled = false;
 			playSlotBtn.textContent = 'Jouer 1 jeton';
@@ -374,26 +452,51 @@
 				return;
 			}
 			slotMessage.textContent = '';
-			// start animation
 			playSlotBtn.disabled = true;
-			playSlotBtn.textContent = 'Lancement...';
-			slotResult.style.color = '#f1c40f';
-			let symbols = ['🍒','🍋','🔔','⭐','7️⃣'];
-			let i = 0;
-			const start = Date.now();
-			slotResult.textContent = symbols[0] + ' ' + symbols[1] + ' ' + symbols[2];
-			const interval = setInterval(()=>{
-				slotResult.textContent = symbols[i%symbols.length] + ' ' + symbols[(i+1)%symbols.length] + ' ' + symbols[(i+2)%symbols.length];
-				i++;
-				// simple flicker color
-				slotResult.style.opacity = slotResult.style.opacity === '0.6' ? '1' : '0.6';
-			},80);
+			playSlotBtn.textContent = 'Rotation...';
+
+			// define symbols with weights (rarer symbols have lower weight)
+			const symbols = [
+				{symbol:'7️⃣', weight:5},
+				{symbol:'🔔', weight:10},
+				{symbol:'⭐', weight:15},
+				{symbol:'🍋', weight:30},
+				{symbol:'🍒', weight:40}
+			];
+
+			// animate three reels independently with staggered stops
+			const reelDisplays = ['','',''];
+			const intervals = [];
+			for(let r=0;r<3;r++){
+				let i=0;
+				intervals[r] = setInterval(()=>{
+					// cycle visual (fast)
+					const seq = [symbols[i%symbols.length].symbol, symbols[(i+1)%symbols.length].symbol, symbols[(i+2)%symbols.length].symbol];
+					reelDisplays[r] = seq[0];
+					slotResult.textContent = `${reelDisplays[0]||' '} ${reelDisplays[1]||' '} ${reelDisplays[2]||' '}`;
+					i++;
+				}, 70 + r*10);
+			}
+
+			// stop times staggered
 			setTimeout(()=>{
-				clearInterval(interval);
-				slotResult.style.opacity = '1';
-				// finalize result (consumes token and possibly awards)
-				playSlotMachineFinalize();
-			},1200);
+				clearInterval(intervals[0]);
+				reelDisplays[0] = spinWeighted(symbols);
+			}, 800);
+			setTimeout(()=>{
+				clearInterval(intervals[1]);
+				reelDisplays[1] = spinWeighted(symbols);
+			}, 1100);
+			setTimeout(()=>{
+				clearInterval(intervals[2]);
+				reelDisplays[2] = spinWeighted(symbols);
+			}, 1400);
+
+			// finalize after last reel stops
+			setTimeout(()=>{
+				slotResult.textContent = `${reelDisplays[0]} ${reelDisplays[1]} ${reelDisplays[2]}`;
+				playSlotMachineFinalize([reelDisplays[0],reelDisplays[1],reelDisplays[2]]);
+			}, 1500);
 		});
 
 		playScratchBtn.addEventListener('click', ()=>{
@@ -501,4 +604,3 @@
 	</script>
 </body>
 </html>
-
