@@ -456,20 +456,10 @@
 
     adminButton.addEventListener('click', openAdminPanel);
 
-    let adminShortcutState = 0;
     document.addEventListener('keydown', (event) => {
-      if (!event.ctrlKey) {
-        adminShortcutState = 0;
-        return;
-      }
       const key = event.key.toLowerCase();
-      if (key === 'a') {
-        adminShortcutState = 1;
-      } else if (key === 'e' && adminShortcutState === 1) {
+      if (event.ctrlKey && key === 'e') {
         openAdminPanel();
-        adminShortcutState = 0;
-      } else {
-        adminShortcutState = 0;
       }
     });
 
@@ -794,5 +784,4 @@
   </script>
 </body>
 </html>
-
 
