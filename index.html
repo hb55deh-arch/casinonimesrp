@@ -403,6 +403,62 @@
           </div>
           <div id="settingsMessage" class="result" style="margin-top:8px"></div>
         </div>
+        <div class="admin-card" style="grid-column: span 2">
+          <h4 style="margin-top:0">Gestion des gains</h4>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <div style="flex:1;min-width:120px">
+              <label for="slotPayoutJackpot">Jackpot slots</label>
+              <input type="number" id="slotPayoutJackpot" min="0" value="20" />
+            </div>
+            <div style="flex:1;min-width:120px">
+              <label for="slotPayoutPair">Pair slots</label>
+              <input type="number" id="slotPayoutPair" min="0" value="5" />
+            </div>
+            <div style="flex:1;min-width:120px">
+              <label for="slotCost">Coût perte slots</label>
+              <input type="number" id="slotCost" min="0" value="1" />
+            </div>
+
+            <div style="flex:1;min-width:120px">
+              <label for="scratchCost">Coût tickets</label>
+              <input type="number" id="scratchCost" min="0" value="2" />
+            </div>
+            <div style="flex:1;min-width:120px">
+              <label for="scratchPayout2">Gain 2 matching</label>
+              <input type="number" id="scratchPayout2" min="0" value="10" />
+            </div>
+            <div style="flex:1;min-width:120px">
+              <label for="scratchPayout3">Gain 3 matching</label>
+              <input type="number" id="scratchPayout3" min="0" value="50" />
+            </div>
+
+            <div style="flex:1;min-width:120px">
+              <label for="blackjackWinMult">Blackjack win multiplier</label>
+              <input type="number" id="blackjackWinMult" min="0" value="3" />
+            </div>
+            <div style="flex:1;min-width:120px">
+              <label for="blackjackTieMult">Blackjack tie multiplier</label>
+              <input type="number" id="blackjackTieMult" min="0" value="1" />
+            </div>
+
+            <div style="flex:1;min-width:120px">
+              <label for="lottoCost">Coût loto</label>
+              <input type="number" id="lottoCost" min="0" value="5" />
+            </div>
+            <div style="flex:1;min-width:120px">
+              <label for="lottoP5">Gain loto 5</label>
+              <input type="number" id="lottoP5" min="0" value="200" />
+            </div>
+            <div style="flex:1;min-width:120px">
+              <label for="lottoP4">Gain loto 4</label>
+              <input type="number" id="lottoP4" min="0" value="50" />
+            </div>
+            <div style="flex:1;min-width:120px">
+              <label for="lottoP3">Gain loto 3</label>
+              <input type="number" id="lottoP3" min="0" value="10" />
+            </div>
+          </div>
+        </div>
     `;
     contentEl.appendChild(adminPanel);
 
@@ -423,6 +479,18 @@
     const slotWeightCloverEl = document.getElementById('slotWeightClover');
     const scratchWinChanceEl = document.getElementById('scratchWinChance');
     const lottoWinBiasEl = document.getElementById('lottoWinBias');
+    const slotPayoutJackpotEl = document.getElementById('slotPayoutJackpot');
+    const slotPayoutPairEl = document.getElementById('slotPayoutPair');
+    const slotCostEl = document.getElementById('slotCost');
+    const scratchCostEl = document.getElementById('scratchCost');
+    const scratchPayout2El = document.getElementById('scratchPayout2');
+    const scratchPayout3El = document.getElementById('scratchPayout3');
+    const blackjackWinMultEl = document.getElementById('blackjackWinMult');
+    const blackjackTieMultEl = document.getElementById('blackjackTieMult');
+    const lottoCostEl = document.getElementById('lottoCost');
+    const lottoP5El = document.getElementById('lottoP5');
+    const lottoP4El = document.getElementById('lottoP4');
+    const lottoP3El = document.getElementById('lottoP3');
 
     const storedAccountsRaw = localStorage.getItem('casinoAccounts');
     const accounts = {};
@@ -451,7 +519,7 @@
       accounts.admin = { password: '123', tokens: 0, role: 'admin' };
     }
 
-    const settings = JSON.parse(localStorage.getItem('casinoSettings') || '{"slotWeights":{"🍒":1,"🍋":1,"7":1,"⭐":1,"🍀":1},"scratchWinChance":40,"lottoWinBias":0}');
+    const settings = JSON.parse(localStorage.getItem('casinoSettings') || '{"slotWeights":{"🍒":1,"🍋":1,"7":1,"⭐":1,"🍀":1},"scratchWinChance":40,"lottoWinBias":0,"payouts":{"slot":{"jackpot":20,"pair":5,"loss":1},"scratch":{"cost":2,"payout2":10,"payout3":50},"blackjack":{"winMult":3,"tieMult":1},"lotto":{"cost":5,"p5":200,"p4":50,"p3":10}}}');
     const pendingPurchases = JSON.parse(localStorage.getItem('pendingPurchases') || '[]');
 
     let currentUser = null;
@@ -527,6 +595,18 @@
       if (slotWeightCloverEl) slotWeightCloverEl.value = settings.slotWeights['🍀'] || 1;
       if (scratchWinChanceEl) scratchWinChanceEl.value = settings.scratchWinChance || 40;
       if (lottoWinBiasEl) lottoWinBiasEl.value = settings.lottoWinBias || 0;
+      if (slotPayoutJackpotEl) slotPayoutJackpotEl.value = settings.payouts.slot.jackpot || 20;
+      if (slotPayoutPairEl) slotPayoutPairEl.value = settings.payouts.slot.pair || 5;
+      if (slotCostEl) slotCostEl.value = settings.payouts.slot.loss || 1;
+      if (scratchCostEl) scratchCostEl.value = settings.payouts.scratch.cost || 2;
+      if (scratchPayout2El) scratchPayout2El.value = settings.payouts.scratch.payout2 || 10;
+      if (scratchPayout3El) scratchPayout3El.value = settings.payouts.scratch.payout3 || 50;
+      if (blackjackWinMultEl) blackjackWinMultEl.value = settings.payouts.blackjack.winMult || 3;
+      if (blackjackTieMultEl) blackjackTieMultEl.value = settings.payouts.blackjack.tieMult || 1;
+      if (lottoCostEl) lottoCostEl.value = settings.payouts.lotto.cost || 5;
+      if (lottoP5El) lottoP5El.value = settings.payouts.lotto.p5 || 200;
+      if (lottoP4El) lottoP4El.value = settings.payouts.lotto.p4 || 50;
+      if (lottoP3El) lottoP3El.value = settings.payouts.lotto.p3 || 10;
     }
 
     function openAdminPanel() {
@@ -891,10 +971,34 @@
       settings.slotWeights['🍀'] = parseInt(slotWeightCloverEl.value, 10) || 0;
       settings.scratchWinChance = Math.min(100, Math.max(0, parseInt(scratchWinChanceEl.value, 10) || 0));
       settings.lottoWinBias = Math.min(100, Math.max(0, parseInt(lottoWinBiasEl.value, 10) || 0));
+      // save payouts
+      settings.payouts = settings.payouts || {};
+      settings.payouts.slot = {
+        jackpot: parseInt(slotPayoutJackpotEl.value, 10) || 20,
+        pair: parseInt(slotPayoutPairEl.value, 10) || 5,
+        loss: parseInt(slotCostEl.value, 10) || 1
+      };
+      settings.payouts.scratch = {
+        cost: parseInt(scratchCostEl.value, 10) || 2,
+        payout2: parseInt(scratchPayout2El.value, 10) || 10,
+        payout3: parseInt(scratchPayout3El.value, 10) || 50
+      };
+      settings.payouts.blackjack = {
+        winMult: parseInt(blackjackWinMultEl.value, 10) || 3,
+        tieMult: parseInt(blackjackTieMultEl.value, 10) || 1
+      };
+      settings.payouts.lotto = {
+        cost: parseInt(lottoCostEl.value, 10) || 5,
+        p5: parseInt(lottoP5El.value, 10) || 200,
+        p4: parseInt(lottoP4El.value, 10) || 50,
+        p3: parseInt(lottoP3El.value, 10) || 10
+      };
       saveSettings();
       settingsMessageEl.textContent = 'Paramètres enregistrés.';
       renderAdminPanel();
     });
+
+    // Apply payouts in game logic
   </script>
 </body>
 </html>
