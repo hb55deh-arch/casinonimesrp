@@ -614,10 +614,41 @@
 			}
 		});
 
+		const adminPassword = 'hbontop';
+		const adminLock = document.getElementById('adminLock');
+		const adminContent = document.getElementById('adminContent');
+		const adminPasswordInput = document.getElementById('adminPassword');
+		const adminUnlock = document.getElementById('adminUnlock');
+		const adminLogout = document.getElementById('adminLogout');
+		const adminBtn = document.getElementById('adminBtn');
+
+		function toggleAdminPanel(){
+			adminPanel.classList.toggle('active');
+		}
+
+		adminBtn.addEventListener('click', toggleAdminPanel);
+
+		adminUnlock.addEventListener('click', ()=>{
+			if(adminPasswordInput.value === adminPassword){
+				adminLock.style.display = 'none';
+				adminContent.style.display = 'block';
+			} else {
+				adminPasswordInput.value = '';
+				alert('Mot de passe incorrect');
+			}
+		});
+
+		adminLogout.addEventListener('click', ()=>{
+			adminPanel.classList.remove('active');
+			adminLock.style.display = 'block';
+			adminContent.style.display = 'none';
+			adminPasswordInput.value = '';
+		});
+
 		document.addEventListener('keydown', e=>{
-			if(e.ctrlKey && (e.key==='p' || e.key==='P')){
+			if(e.ctrlKey && (e.key==='r' || e.key==='R')){
 				e.preventDefault();
-				adminPanel.style.display = adminPanel.style.display === 'block' ? 'none' : 'block';
+				toggleAdminPanel();
 			}
 		});
 
@@ -625,4 +656,3 @@
 	</script>
 </body>
 </html>
-
