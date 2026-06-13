@@ -75,6 +75,17 @@
       <button type="button" id="registerButton">Créer un compte</button>
     </form>
 
+    <form id="registerForm" class="hidden">
+      <label for="registerUsername">Pseudo</label>
+      <input type="text" id="registerUsername" name="registerUsername" placeholder="Entrez un pseudo" />
+
+      <label for="registerPassword">Mot de passe</label>
+      <input type="password" id="registerPassword" name="registerPassword" placeholder="Entrez un mot de passe" />
+
+      <button type="button" id="createAccountButton">Créer le compte</button>
+      <button type="button" id="cancelRegisterButton">Retour</button>
+    </form>
+
     <div id="content" class="hidden">
       <h2>Accès autorisé</h2>
       <p>Bienvenue au casino. Choisissez une catégorie :</p>
@@ -99,8 +110,13 @@
       <div id="slots" class="casino-section hidden">
         <h3>Machine à sous</h3>
         <p>Faites tourner les rouleaux et gagnez des jetons.</p>
-        <div id="slotResult" class="result"></div>
+        <div class="slot-machine">
+          <span class="reel" id="reel1">?</span>
+          <span class="reel" id="reel2">?</span>
+          <span class="reel" id="reel3">?</span>
+        </div>
         <button id="spinButton" type="button">Lancer</button>
+        <div id="slotResult" class="result"></div>
       </div>
 
       <div id="blackjack" class="casino-section hidden">
@@ -133,16 +149,23 @@
 
   <script>
     const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const reelEls = [
+      document.getElementById('reel1'),
+      document.getElementById('reel2'),
+      document.getElementById('reel3')
+    ];
     const messageEl = document.getElementById('message');
     const contentEl = document.getElementById('content');
     const balanceEl = document.getElementById('balance');
     const navButtons = document.querySelectorAll('.nav-buttons button');
     const sections = document.querySelectorAll('.casino-section');
 
-    const validCredentials = {
-      username: 'admin',
-      password: 'motdepasse123'
-    };
+    const accounts = JSON.parse(localStorage.getItem('casinoAccounts') || '{"admin":"motdepasse123"}');
+
+    function saveAccounts() {
+      localStorage.setItem('casinoAccounts', JSON.stringify(accounts));
+    }
 
     let tokens = 0;
     let blackjackState = null;
@@ -156,10 +179,46 @@
       document.getElementById(id).classList.remove('hidden');
     }
 
+    const registerButton = document.getElementById('registerButton');
+    const createAccountButton = document.getElementById('createAccountButton');
+    const cancelRegisterButton = document.getElementById('cancelRegisterButton');
+
     navButtons.forEach(button => {
       button.addEventListener('click', () => {
         showSection(button.dataset.target);
       });
+    });
+
+    registerButton.addEventListener('click', () => {
+      loginForm.classList.add('hidden');
+      registerForm.classList.remove('hidden');
+      messageEl.textContent = '';
+    });
+
+    cancelRegisterButton.addEventListener('click', () => {
+      registerForm.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+      messageEl.textContent = '';
+    });
+
+    createAccountButton.addEventListener('click', () => {
+      const username = document.getElementById('registerUsername').value.trim();
+      const password = document.getElementById('registerPassword').value.trim();
+      if (!username || !password) {
+        messageEl.textContent = 'Veuillez remplir le pseudo et le mot de passe pour créer un compte.';
+        return;
+      }
+      if (accounts[username]) {
+        messageEl.textContent = 'Ce pseudo existe déjà.';
+        return;
+      }
+      accounts[username] = password;
+      saveAccounts();
+      messageEl.textContent = 'Compte créé avec succès. Connectez-vous.';
+      registerForm.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+      document.getElementById('registerUsername').value = '';
+      document.getElementById('registerPassword').value = '';
     });
 
     loginForm.addEventListener('submit', function(event) {
@@ -173,7 +232,7 @@
         return;
       }
 
-      if (username === validCredentials.username && password === validCredentials.password) {
+      if (accounts[username] && accounts[username] === password) {
         messageEl.textContent = '';
         contentEl.classList.remove('hidden');
         loginForm.classList.add('hidden');
@@ -208,17 +267,19 @@
         symbols[Math.floor(Math.random() * symbols.length)],
         symbols[Math.floor(Math.random() * symbols.length)]
       ];
-      slotResult.textContent = reels.join(' | ');
+      reelEls.forEach((el, index) => {
+        if (el) el.textContent = reels[index];
+      });
       let reward = 0;
       if (reels[0] === reels[1] && reels[1] === reels[2]) {
         reward = 20;
-        slotResult.textContent += ' - Jackpot ! +20 jetons';
+        slotResult.textContent = 'Jackpot ! ' + reels.join(' | ') + ' +20 jetons';
       } else if (reels[0] === reels[1] || reels[1] === reels[2] || reels[0] === reels[2]) {
         reward = 5;
-        slotResult.textContent += ' - Bien joué ! +5 jetons';
+        slotResult.textContent = 'Bien joué ! ' + reels.join(' | ') + ' +5 jetons';
       } else {
         reward = -1;
-        slotResult.textContent += ' - Perdu. -1 jeton';
+        slotResult.textContent = 'Perdu. ' + reels.join(' | ') + ' -1 jeton';
       }
       tokens += reward;
       if (tokens < 0) tokens = 0;
@@ -360,6 +421,4 @@
   </script>
 </body>
 </html>
-
-
 
