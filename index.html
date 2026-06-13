@@ -103,28 +103,33 @@
 					<button class="adminBtn" data-admin="give">Donner Jetons</button>
 					<button id="adminLogout" style="background:#e74c3c;color:#fff;margin-top:8px;width:100%">Fermer Panel</button>
 				</div>
-			<div id="adminContent" style="margin-top:8px">
-				<div class="admin-section" data-section="validation">
-					<p>Liste des achats à valider :</p>
-					<div class="user-list" id="adminPending"></div>
-				</div>
-				<div class="admin-section" data-section="users" style="display:none">
-					<p>Liste des utilisateurs :</p>
-					<div class="user-list" id="adminUsers"></div>
-				</div>
-				<div class="admin-section" data-section="probabilities" style="display:none">
-					<p>Probabilités des jeux (modifiable) :</p>
-					<div id="probControls">
-						<label>Machine à sous: <input type="text" id="probSlot" value="0.05" /></label><br/>
-						<label>Blackjack: <input type="text" id="probBlack" value="0.42" /></label><br/>
-						<label>Poker: <input type="text" id="probPoker" value="0.10" /></label><br/>
-						<label>Ticket à gratter: <input type="text" id="probScratch" value="0.12" /></label>
+				<div class="admin-sections" style="margin-top:8px">
+					<div class="admin-section active" data-section="validation">
+						<p>Liste des achats à valider :</p>
+						<div class="user-list" id="adminPending"></div>
 					</div>
-				</div>
-				<div class="admin-section" data-section="give" style="display:none">
-					<p>Donner des jetons :</p>
-					<input type="text" id="giveUser" placeholder="Pseudo" /> <input type="number" id="giveAmount" placeholder="Quantité" /> <button id="giveBtn">Donner</button>
-					<p id="giveMsg" style="margin-top:8px"></p>
+					<div class="admin-section" data-section="users" style="display:none">
+						<p>Liste des utilisateurs :</p>
+						<div class="user-list" id="adminUsers"></div>
+						<p style="margin:12px 0 4px 0">Utilisateurs bannis :</p>
+						<div class="user-list" id="bannedList"></div>
+					</div>
+					<div class="admin-section" data-section="probabilities" style="display:none">
+						<p>Probabilités des jeux (modifiable) :</p>
+						<div id="probControls">
+							<label>Machine à sous: <input type="number" id="probSlot" min="0" max="100" step="1" value="50" /></label><br/>
+							<label>Blackjack: <input type="number" id="probBlack" min="0" max="100" step="1" value="42" /></label><br/>
+							<label>Poker: <input type="number" id="probPoker" min="0" max="100" step="1" value="10" /></label><br/>
+							<label>Ticket à gratter: <input type="number" id="probScratch" min="0" max="100" step="1" value="12" /></label><br/>
+							<button id="saveProbBtn" style="margin-top:8px;background:#16a085;color:#fff;padding:6px 10px;border:none;border-radius:4px;cursor:pointer">Sauvegarder</button>
+							<p id="probMsg" style="margin-top:8px;color:#f39c12"></p>
+						</div>
+					</div>
+					<div class="admin-section" data-section="give" style="display:none">
+						<p>Donner des jetons :</p>
+						<input type="text" id="giveUser" placeholder="Pseudo" /> <input type="number" id="giveAmount" placeholder="Quantité" /> <button id="giveBtn">Donner</button>
+						<p id="giveMsg" style="margin-top:8px"></p>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -656,3 +661,4 @@
 	</script>
 </body>
 </html>
+
