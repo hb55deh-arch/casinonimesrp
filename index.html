@@ -1,0 +1,455 @@
+#!/usr/bin/env python3
+"""
+Casino simple en français
+
+- Jeux: Roulette (européenne), Machine à sous, Blackjack (version simplifiée)
+- Système de jetons
+"""
+
+import random
+import sys
+
+CONFIG = {
+    'admin_password': 'hb',
+    'machine_weights': {'Cerise': 40, 'Citron': 30, 'BAR': 20, '7': 9, 'Jackpot': 1},
+    'roulette_rouges': {1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36}
+}
+PENDING_PURCHASES = []  # list of dicts: {'nom':..., 'jetons':..., 'prix':..., 'statut': 'pending'/'approved'/'rejected'}
+
+
+class Joueur:
+    def __init__(self, nom, jetons=0):
+        self.nom = nom
+        self.jetons = jetons
+
+    def miser(self, montant):
+        if montant <= 0 or montant > self.jetons:
+            return False
+        self.jetons -= montant
+        return True
+
+    def gagner(self, montant):
+        self.jetons += montant
+
+    def donner(self, montant):
+        if montant > 0:
+            self.jetons += montant
+
+
+def affiche_solde(joueur):
+    print(f"{joueur.nom}, vous avez {joueur.jetons} jetons.")
+
+
+def roulette_europeenne(joueur):
+    print('\n--- Roulette (européenne) ---')
+    print('Paris possibles: numéro (0-36) paye 35:1, couleur (rouge/noir) paye 1:1, pair/impair paye 1:1')
+    try:
+        mise = int(input('Montant de la mise: '))
+    except ValueError:
+        print('Mise invalide')
+        return
+    if not joueur.miser(mise):
+        print('Mise impossible')
+        return
+    type_pari = input('Type de pari (numero/couleur/pair): ').strip().lower()
+    resultat = random.randint(0, 36)
+    rouges = CONFIG.get('roulette_rouges', {1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36})
+    couleur = 'vert' if resultat == 0 else ('rouge' if resultat in rouges else 'noir')
+    print(f"La bille tombe sur {resultat} ({couleur})")
+    if type_pari == 'numero':
+        try:
+            n = int(input('Choisissez un numéro (0-36): '))
+        except ValueError:
+            print('Numéro invalide')
+            return
+        if n == resultat:
+            gain = mise * 35
+            joueur.gagner(gain + mise)
+            print(f'Bravo! Vous gagnez {gain} jetons.')
+        else:
+            print('Désolé, vous perdez.')
+    elif type_pari == 'couleur':
+        c = input('Choisissez couleur (rouge/noir): ').strip().lower()
+        if c == couleur:
+            gain = mise
+            joueur.gagner(gain + mise)
+            print(f'Vous gagnez {gain} jetons.')
+        else:
+            print('Perdu.')
+    elif type_pari == 'pair':
+        p = input('Choisissez pair ou impair: ').strip().lower()
+        if resultat == 0:
+            print('0 n’est ni pair ni impair. Perdu.')
+            return
+        res_par = 'pair' if resultat % 2 == 0 else 'impair'
+        if p == res_par:
+            joueur.gagner(mise + mise)
+            print(f'Vous gagnez {mise} jetons.')
+        else:
+            print('Perdu.')
+    else:
+        print('Type de pari non reconnu')
+
+
+def machine_a_sous(joueur):
+    print('\n--- Machine à sous ---')
+    try:
+        mise = int(input('Mise par tour: '))
+    except ValueError:
+        print('Mise invalide')
+        return
+    if not joueur.miser(mise):
+        print('Mise impossible')
+        return
+    weights = CONFIG.get('machine_weights', {'Cerise': 40, 'Citron': 30, 'BAR': 20, '7': 9, 'Jackpot': 1})
+    symbols = []
+    for s, w in weights.items():
+        symbols += [s] * w
+    r = [random.choice(symbols) for _ in range(3)]
+    print(' | '.join(r))
+    if r.count('Jackpot') == 3:
+        gain = mise * 100
+    elif r.count('7') == 3:
+        gain = mise * 50
+    elif r.count('BAR') == 3:
+        gain = mise * 20
+    elif r.count('Cerise') >= 2:
+        gain = mise * 3
+    else:
+        gain = 0
+    if gain > 0:
+        joueur.gagner(gain + mise)
+        print(f'Vous gagnez {gain} jetons!')
+    else:
+        print('Pas de gain.')
+
+
+def blackjack_simple(joueur):
+    print('\n--- Blackjack (simplifié) ---')
+    try:
+        mise = int(input('Mise: '))
+    except ValueError:
+        print('Mise invalide')
+        return
+    if not joueur.miser(mise):
+        print('Mise impossible')
+        return
+
+    def tirage():
+        ranks = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]
+        return random.choice(ranks)
+
+    def tot(main):
+        s = sum(main)
+        while s > 21 and 11 in main:
+            main[main.index(11)] = 1
+            s = sum(main)
+        return s
+
+    main_j = [tirage(), tirage()]
+    main_c = [tirage(), tirage()]
+    while True:
+        print(f'Votre main: {main_j} -> {tot(main_j)}')
+        if tot(main_j) > 21:
+            print('Busted!')
+            return
+        cmd = input('Taper H pour tirer, S pour rester: ').strip().upper()
+        if cmd == 'H':
+            main_j.append(tirage())
+            continue
+        else:
+            break
+    while tot(main_c) < 17:
+        main_c.append(tirage())
+    print(f'Banque: {main_c} -> {tot(main_c)}')
+    jscore = tot(main_j)
+    cscore = tot(main_c)
+    if cscore > 21 or jscore > cscore:
+        gain = mise * 2
+        joueur.gagner(gain)
+        print('Vous gagnez!')
+    elif jscore == cscore:
+        joueur.gagner(mise)
+        print('Égalité, mise rendue.')
+    else:
+        print('La banque gagne.')
+
+
+def tickets_gratter(joueur):
+    print('\n--- Tickets à gratter ---')
+    try:
+        mise = int(input('Prix du ticket: '))
+    except ValueError:
+        print('Mise invalide')
+        return
+    if not joueur.miser(mise):
+        print('Mise impossible')
+        return
+    cases = [random.randint(0, 9) for _ in range(3)]
+    print(' | '.join(map(str, cases)))
+    if cases[0] == cases[1] == cases[2]:
+        gain = mise * 10
+    elif any(cases.count(x) >= 2 for x in cases):
+        gain = mise * 3
+    else:
+        gain = 0
+    if gain > 0:
+        joueur.gagner(gain + mise)
+        print(f'Vous gagnez {gain} jetons!')
+    else:
+        print('Pas de gain.')
+
+
+def loterie(joueur):
+    print('\n--- Loterie ---')
+    try:
+        mise = int(input('Mise (prix du billet): '))
+    except ValueError:
+        print('Mise invalide')
+        return
+    if not joueur.miser(mise):
+        print('Achat impossible')
+        return
+    try:
+        choix = list(map(int, input('Choisissez 3 chiffres (0-9) séparés par espaces: ').split()))
+    except ValueError:
+        print('Entrée invalide')
+        return
+    if len(choix) != 3 or any(not (0 <= n <= 9) for n in choix):
+        print('Choix invalide')
+        return
+    tirage = [random.randint(0, 9) for _ in range(3)]
+    print('Tirage:', ' '.join(map(str, tirage)))
+    matches = sum(1 for a, b in zip(choix, tirage) if a == b)
+    if matches == 3:
+        gain = mise * 50
+    elif matches == 2:
+        gain = mise * 5
+    elif matches == 1:
+        gain = mise * 2
+    else:
+        gain = 0
+    if gain > 0:
+        joueur.gagner(gain + mise)
+        print(f'Vous gagnez {gain} jetons!')
+    else:
+        print('Pas de gain.')
+
+
+def poker_simple(joueur):
+    print('\n--- Poker (simplifié) ---')
+    try:
+        mise = int(input('Mise pour la partie: '))
+    except ValueError:
+        print('Mise invalide')
+        return
+    if not joueur.miser(mise):
+        print('Mise impossible')
+        return
+
+    def draw_hand():
+        return sorted([random.randint(1, 13) for _ in range(5)])
+
+    main_j = draw_hand()
+    main_c = draw_hand()
+    print('Votre main:', main_j)
+    print('Adversaire:', main_c)
+    score = lambda h: sum(h)
+    if score(main_j) > score(main_c):
+        joueur.gagner(mise * 2)
+        print('Vous gagnez!')
+    elif score(main_j) == score(main_c):
+        joueur.gagner(mise)
+        print('Égalité, mise rendue.')
+    else:
+        print('Vous perdez.')
+
+
+def admin_panel(joueur):
+    pwd = input('Mot de passe admin: ').strip()
+    if pwd != CONFIG.get('admin_password', 'admin'):
+        print('Accès refusé')
+        return
+    print('\n--- Panel Admin ---')
+    print('1) Donner des jetons au joueur courant')
+    print('2) Configurer poids machine à sous')
+    print('3) Configurer numéros rouges roulette')
+    print('4) Gérer achats en attente')
+    print('5) Changer mot de passe admin')
+    print('6) Voir configuration courante')
+    print('0) Retour')
+    c = input('> ').strip()
+    if c == '0':
+        return
+    if c == '1':
+        try:
+            amt = int(input('Montant à donner au joueur courant: '))
+        except ValueError:
+            print('Valeur invalide')
+            return
+        joueur.donner(amt)
+        print('Fait.')
+        return
+    if c == '2':
+        print('Entrez poids pour Cerise,Citron,BAR,7,Jackpot séparés par des espaces')
+        try:
+            p = list(map(int, input('> ').split()))
+        except ValueError:
+            print('Valeur invalide')
+            return
+        if len(p) != 5:
+            print('Nombre invalide')
+            return
+        CONFIG['machine_weights'] = {'Cerise': p[0], 'Citron': p[1], 'BAR': p[2], '7': p[3], 'Jackpot': p[4]}
+        print('Poids mis à jour.')
+        return
+    if c == '3':
+        print('Entrez numéros rouges séparés par des espaces (0 exclu)')
+        try:
+            nums = set(map(int, input('> ').split()))
+        except ValueError:
+            print('Valeur invalide')
+            return
+        CONFIG['roulette_rouges'] = nums
+        print('Rouges mis à jour.')
+        return
+    if c == '4':
+        if not PENDING_PURCHASES:
+            print('Aucun achat en attente.')
+            return
+        for i, ap in enumerate(PENDING_PURCHASES):
+            print(f"[{i}] {ap['nom']} - {ap['jetons']} jetons - {ap['prix']} - statut: {ap.get('statut')}")
+        try:
+            i = int(input('Index à traiter (ou -1 pour annuler): '))
+        except ValueError:
+            print('Valeur invalide')
+            return
+        if i < 0 or i >= len(PENDING_PURCHASES):
+            print('Index invalide')
+            return
+        ap = PENDING_PURCHASES[i]
+        print('1) Approuver')
+        print('2) Rejeter')
+        cmd = input('> ').strip()
+        if cmd == '1':
+            ap['statut'] = 'approved'
+            if ap['nom'] == joueur.nom:
+                joueur.donner(ap.get('jetons', 0))
+            print('Achat approuvé.')
+            return
+        if cmd == '2':
+            ap['statut'] = 'rejected'
+            print('Achat rejeté.')
+            return
+        print('Choix invalide')
+        return
+    if c == '5':
+        npwd = input('Nouveau mot de passe admin: ').strip()
+        if not npwd:
+            print('Mot de passe vide non autorisé')
+            return
+        CONFIG['admin_password'] = npwd
+        print('Mot de passe mis à jour.')
+        return
+    if c == '6':
+        print('Configuration:')
+        print(CONFIG)
+        print('Achats en attente:')
+        for ap in PENDING_PURCHASES:
+            print(ap)
+        return
+    print('Choix invalide')
+
+
+def accueil_page(joueur):
+    print('\n--- Page d\'accueil ---')
+    print('Bienvenue! Cliquez sur le bouton pour acheter des jetons (simulé).')
+    print('1) Acheter des jetons')
+    print('2) Retour')
+    c = input('> ').strip()
+    if c == '1':
+        print('\nChoisissez une catégorie:')
+        print('1) 8 jetons  - 3000')
+        print('2) 16 jetons - 6000')
+        print('3) 24 jetons - 8000')
+        choix = input('> ').strip()
+        if choix == '1':
+            PENDING_PURCHASES.append({'nom': joueur.nom, 'jetons': 8, 'prix': 3000, 'statut': 'pending'})
+        elif choix == '2':
+            PENDING_PURCHASES.append({'nom': joueur.nom, 'jetons': 16, 'prix': 6000, 'statut': 'pending'})
+        elif choix == '3':
+            PENDING_PURCHASES.append({'nom': joueur.nom, 'jetons': 24, 'prix': 8000, 'statut': 'pending'})
+        else:
+            print('Choix invalide')
+            return
+        print('Achat enregistré et en attente de validation par un admin.')
+    else:
+        return
+
+
+def menu():
+    nom = input('Entrez votre nom: ').strip() or 'Joueur'
+    joueur = Joueur(nom)
+    actions = {
+        '1': roulette_europeenne,
+        '2': machine_a_sous,
+        '3': blackjack_simple,
+        '4': tickets_gratter,
+        '5': poker_simple,
+    }
+    while True:
+        try:
+            import keyboard
+            keyboard.add_hotkey('ctrl+a+d', lambda: admin_panel(joueur))
+        except Exception:
+            pass
+        affiche_solde(joueur)
+        print('\nChoisissez un jeu:')
+        print('1) Roulette (européenne)')
+        print('2) Machine à sous')
+        print('3) Blackjack (simplifié)')
+        print('4) Tickets à gratter')
+        print('5) Poker (simplifié)')
+        print('6) Acheter des crédits')
+        print('7) Accéder au panel admin')
+        print('8) Quitter')
+        c = input('> ').strip()
+        if c == '8':
+            print('Au revoir!')
+            break
+        if c == '7':
+            admin_panel(joueur)
+            continue
+        if c == '6':
+            accueil_page(joueur)
+            continue
+        if c in actions:
+            actions[c](joueur)
+        else:
+            print('Choix invalide')
+
+
+def entree_validation():
+    """Demande à l'utilisateur de valider l'entrée du casino avant d'accéder au menu."""
+    print('Avant d\'entrer, veuillez confirmer:')
+    print("Tapez exactement: je valide le casino")
+    print("Ou 'q' pour quitter.")
+    while True:
+        rep = input('> ').strip().lower()
+        if rep == 'je valide le casino':
+            print('Accès autorisé. Bon jeu !')
+            return True
+        if rep == 'q':
+            print('Accès refusé. Au revoir.')
+            return False
+        print("Réponse non reconnue. Tapez 'je valide le casino' pour entrer ou 'q' pour quitter.")
+
+
+if __name__ == '__main__':
+    try:
+        if not entree_validation():
+            sys.exit(0)
+        menu()
+    except KeyboardInterrupt:
+        print('\nSortie')
+        sys.exit(0)
