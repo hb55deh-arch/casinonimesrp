@@ -1,455 +1,576 @@
-#!/usr/bin/env python3
-"""
-Casino simple en français
+<!doctype html>
+<html lang="fr">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>Casino de Nîmes RP - Machine à Sous</title>
+	<style>
+		body{font-family:Segoe UI,Arial,sans-serif;background:#041107;color:#e4ffe8;margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;background-image:radial-gradient(circle at top left,rgba(75,255,133,.16),transparent 18%),radial-gradient(circle at bottom right,rgba(35,255,120,.12),transparent 20%)}
+		.casino{background:linear-gradient(180deg,rgba(10,30,12,.96),rgba(4,10,6,.96));padding:24px;border-radius:18px;box-shadow:0 14px 40px rgba(0,255,120,.14),0 0 60px rgba(0,255,120,.05);width:360px;border:1px solid rgba(62,255,134,.12)}
+		h1{font-size:20px;margin:0 0 12px;text-align:center;color:#b8ffbf}
+		.balance{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+		.balance .coins{font-weight:700;color:#8aff8f}
+		.slots{display:flex;gap:8px;justify-content:center;margin-bottom:12px}
+		.blackjack-board{display:flex;flex-direction:column;gap:8px;justify-content:center;margin-bottom:12px}
+		.blackjack-board div{background:rgba(7,20,10,.95);padding:12px;border-radius:10px;border:1px solid rgba(140,255,164,.12);font-size:15px}
+		.reel{width:84px;height:84px;background:rgba(7,20,10,.95);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;border:1px solid rgba(140,255,164,.12);box-shadow:inset 0 0 12px rgba(0,255,140,.08)}
+		.controls{display:flex;gap:8px;justify-content:center;margin-bottom:12px}
+		button{background:#0e7f3d;color:#f6fffa;border:0;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:600;box-shadow:0 6px 14px rgba(0,0,0,.25);transition:transform .15s ease,background .15s ease}
+		button:hover:not(:disabled){transform:translateY(-1px);background:#15ad4e}
+		button:disabled{opacity:.45;cursor:default}
+		.info{font-size:13px;color:#b9d9b2;margin-top:10px;text-align:center}
+		.topbar{display:flex;gap:8px;justify-content:center;margin-bottom:12px}
+		.topbar input{flex:1;padding:8px;border-radius:10px;border:1px solid rgba(138,255,157,.18);background:rgba(8,18,9,.95);color:#e4ffe8}
+		.tab{flex:1;padding:10px 12px;border-radius:10px;border:1px solid rgba(138,255,157,.16);background:rgba(11,25,12,.95);color:#e4ffe8;cursor:pointer}
+		.tab.active{background:#17c853}
+		.purchase{display:flex;gap:8px;justify-content:center;margin-bottom:12px}
+		.purchase input{width:100px;padding:8px;border-radius:10px;border:1px solid rgba(138,255,157,.18);background:rgba(8,18,9,.95);color:#e4ffe8}
+		.admin-panel{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;padding:20px;visibility:hidden;opacity:0;pointer-events:none;transition:opacity .2s}
+		.admin-panel.active{visibility:visible;opacity:1;pointer-events:auto}
+		.admin-content{background:rgba(7,16,8,.98);border-radius:18px;padding:22px;max-width:560px;width:100%;color:#e4ffe8;box-shadow:0 16px 48px rgba(0,255,120,.16)}
+		.admin-content h2{margin-top:0;text-align:center;color:#b9ffb7}
+		.admin-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+		.admin-row select,.admin-row input{flex:1;padding:8px;border-radius:10px;border:1px solid rgba(138,255,157,.18);background:rgba(8,18,9,.95);color:#e4ffe8}
+		.admin-list, .admin-pending{max-height:180px;overflow:auto;background:rgba(8,18,9,.96);padding:12px;border-radius:12px;border:1px solid rgba(138,255,157,.14);margin-bottom:12px}
+		.admin-item{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid rgba(138,255,157,.08)}
+		.admin-item:last-child{border-bottom:none}
+		.admin-item span{font-size:13px;color:#b9ffb7}
+	</style>
+</head>
+<body>
+	<div class="casino">
+		<div id="greeting" style="text-align:center;margin-bottom:8px;color:#9fb3d6"></div>
+		<div class="topbar">
+			<input id="playerName" placeholder="Entrez votre pseudo">
+			<button id="loginBtn">Se connecter</button>
+		</div>
+		<h1>Casino de Nîmes RP — Mini Jeux</h1>
+		<div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px">
+			<button class="tab" data-game="slots">Machine à sous</button>
+			<button class="tab" data-game="blackjack">Blackjack</button>
+			<button class="tab" data-game="roulette">Roulette</button>
+			<button class="tab" data-game="scratch">Tickets à gratter</button>
+			<button class="tab" data-game="poker">Poker</button>
+		</div>
+		<div class="balance">
+			<div>Solde:</div>
+			<div class="coins" id="balance">0</div>
+		</div>
 
-- Jeux: Roulette (européenne), Machine à sous, Blackjack (version simplifiée)
-- Système de jetons
-"""
+		<div id="slotsSection">
+			<div class="slots">
+				<div class="reel" id="r1">—</div>
+				<div class="reel" id="r2">—</div>
+				<div class="reel" id="r3">—</div>
+			</div>
+		</div>
 
-import random
-import sys
+		<div id="blackjackSection" style="display:none">
+			<div class="blackjack-board">
+				<div><strong>Banque:</strong> <span id="dealerCards">—</span> <span id="dealerTotal"></span></div>
+				<div><strong>Joueur:</strong> <span id="playerCards">—</span> <span id="playerTotal"></span></div>
+			</div>
+		</div>
 
-CONFIG = {
-    'admin_password': 'hb',
-    'machine_weights': {'Cerise': 40, 'Citron': 30, 'BAR': 20, '7': 9, 'Jackpot': 1},
-    'roulette_rouges': {1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36}
-}
-PENDING_PURCHASES = []  # list of dicts: {'nom':..., 'jetons':..., 'prix':..., 'statut': 'pending'/'approved'/'rejected'}
+		<div class="controls">
+			<button id="spin" disabled>Jouer (0 pièces)</button>
+			<button id="hitBtn" style="display:none">Tirer</button>
+			<button id="standBtn" style="display:none">Rester</button>
+			<button id="betDown">-</button>
+			<div style="align-self:center;color:#9fb3d6" id="bet">10</div>
+			<button id="betUp">+</button>
+		</div>
 
+		<div class="purchase">
+			<input id="buyAmount" type="number" min="1" value="10">
+			<button id="buyTokens" disabled>Acheter des jetons</button>
+		</div>
 
-class Joueur:
-    def __init__(self, nom, jetons=0):
-        self.nom = nom
-        self.jetons = jetons
+		<div class="info" id="message">Connectez-vous pour jouer. Appuyez sur Ctrl + A + D pour ouvrir le panneau admin.</div>
+	</div>
 
-    def miser(self, montant):
-        if montant <= 0 or montant > self.jetons:
-            return False
-        self.jetons -= montant
-        return True
+	<div class="admin-panel" id="adminPanel">
+		<div class="admin-content">
+			<h2>Panneau Admin</h2>
+			<div class="admin-row">
+				<select id="adminMachineSelect"></select>
+				<input id="adminMachineChanceInput" type="number" min="0" max="100" placeholder="Probabilité machine %">
+				<button id="adminSetMachineChance">Définir probabilité machine</button>
+			</div>
+			<div class="admin-row">
+				<select id="adminPlayerSelect"></select>
+				<input id="adminChanceInput" type="number" min="0" max="100" placeholder="Bonus joueur %">
+				<button id="adminSetChance">Définir bonus joueur</button>
+			</div>
+			<div class="admin-list">
+				<strong>Probabilités des machines</strong>
+				<div id="adminMachineList"></div>
+			</div>
+			<div class="admin-list">
+				<strong>Joueurs enregistrés</strong>
+				<div id="adminPlayerList"></div>
+			</div>
+			<div class="admin-pending">
+				<strong>Achats en attente</strong>
+				<div id="adminPendingList"></div>
+			</div>
+			<div style="text-align:center">
+				<button id="adminClose">Fermer</button>
+			</div>
+		</div>
+	</div>
 
-    def gagner(self, montant):
-        self.jetons += montant
+	<script>
+		const symbols = ['🍒','🍋','🔔','⭐','7️⃣'];
+		const players = JSON.parse(localStorage.getItem('casinoPlayers') || '{}');
+		let currentUser = localStorage.getItem('casinoUser') || '';
+		const balanceEl = document.getElementById('balance');
+		const r1 = document.getElementById('r1'), r2 = document.getElementById('r2'), r3 = document.getElementById('r3');
+		const msg = document.getElementById('message');
+		const spinBtn = document.getElementById('spin');
+		const betEl = document.getElementById('bet');
+		const betUp = document.getElementById('betUp'), betDown = document.getElementById('betDown');
+		const loginBtn = document.getElementById('loginBtn');
+		const playerNameInput = document.getElementById('playerName');
+		const buyTokensBtn = document.getElementById('buyTokens');
+		const buyAmountInput = document.getElementById('buyAmount');
+		const adminPanel = document.getElementById('adminPanel');
+		const adminMachineSelect = document.getElementById('adminMachineSelect');
+		const adminMachineChanceInput = document.getElementById('adminMachineChanceInput');
+		const adminSetMachineChance = document.getElementById('adminSetMachineChance');
+		const adminPlayerSelect = document.getElementById('adminPlayerSelect');
+		const adminChanceInput = document.getElementById('adminChanceInput');
+		const adminSetChance = document.getElementById('adminSetChance');
+		const adminMachineList = document.getElementById('adminMachineList');
+		const adminPlayerList = document.getElementById('adminPlayerList');
+		const adminPendingList = document.getElementById('adminPendingList');
+		const adminClose = document.getElementById('adminClose');
+		const greeting = document.getElementById('greeting');
+		const tabs = document.querySelectorAll('.tab');
+		const slotsSection = document.getElementById('slotsSection');
+		const blackjackSection = document.getElementById('blackjackSection');
+		const dealerCardsEl = document.getElementById('dealerCards');
+		const dealerTotalEl = document.getElementById('dealerTotal');
+		const playerCardsEl = document.getElementById('playerCards');
+		const playerTotalEl = document.getElementById('playerTotal');
+		const hitBtn = document.getElementById('hitBtn');
+		const standBtn = document.getElementById('standBtn');
 
-    def donner(self, montant):
-        if montant > 0:
-            self.jetons += montant
+		let bet = 10;
+		let hotKeys = new Set();
+		let currentGame = 'slots';
+		let blackjackState = null;
 
+		function savePlayers() {
+			localStorage.setItem('casinoPlayers', JSON.stringify(players));
+		}
 
-def affiche_solde(joueur):
-    print(f"{joueur.nom}, vous avez {joueur.jetons} jetons.")
+		const machineNames = {
+			slots: 'Machine à sous',
+			blackjack: 'Blackjack',
+			roulette: 'Roulette',
+			scratch: 'Tickets à gratter',
+			poker: 'Poker'
+		};
 
+		const machineChances = JSON.parse(localStorage.getItem('casinoMachineChances') || 'null') || {
+			slots: 20,
+			blackjack: 15,
+			roulette: 10,
+			scratch: 12,
+			poker: 8
+		};
 
-def roulette_europeenne(joueur):
-    print('\n--- Roulette (européenne) ---')
-    print('Paris possibles: numéro (0-36) paye 35:1, couleur (rouge/noir) paye 1:1, pair/impair paye 1:1')
-    try:
-        mise = int(input('Montant de la mise: '))
-    except ValueError:
-        print('Mise invalide')
-        return
-    if not joueur.miser(mise):
-        print('Mise impossible')
-        return
-    type_pari = input('Type de pari (numero/couleur/pair): ').strip().lower()
-    resultat = random.randint(0, 36)
-    rouges = CONFIG.get('roulette_rouges', {1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36})
-    couleur = 'vert' if resultat == 0 else ('rouge' if resultat in rouges else 'noir')
-    print(f"La bille tombe sur {resultat} ({couleur})")
-    if type_pari == 'numero':
-        try:
-            n = int(input('Choisissez un numéro (0-36): '))
-        except ValueError:
-            print('Numéro invalide')
-            return
-        if n == resultat:
-            gain = mise * 35
-            joueur.gagner(gain + mise)
-            print(f'Bravo! Vous gagnez {gain} jetons.')
-        else:
-            print('Désolé, vous perdez.')
-    elif type_pari == 'couleur':
-        c = input('Choisissez couleur (rouge/noir): ').strip().lower()
-        if c == couleur:
-            gain = mise
-            joueur.gagner(gain + mise)
-            print(f'Vous gagnez {gain} jetons.')
-        else:
-            print('Perdu.')
-    elif type_pari == 'pair':
-        p = input('Choisissez pair ou impair: ').strip().lower()
-        if resultat == 0:
-            print('0 n’est ni pair ni impair. Perdu.')
-            return
-        res_par = 'pair' if resultat % 2 == 0 else 'impair'
-        if p == res_par:
-            joueur.gagner(mise + mise)
-            print(f'Vous gagnez {mise} jetons.')
-        else:
-            print('Perdu.')
-    else:
-        print('Type de pari non reconnu')
+		function saveMachineChances() {
+			localStorage.setItem('casinoMachineChances', JSON.stringify(machineChances));
+		}
 
+		saveMachineChances();
 
-def machine_a_sous(joueur):
-    print('\n--- Machine à sous ---')
-    try:
-        mise = int(input('Mise par tour: '))
-    except ValueError:
-        print('Mise invalide')
-        return
-    if not joueur.miser(mise):
-        print('Mise impossible')
-        return
-    weights = CONFIG.get('machine_weights', {'Cerise': 40, 'Citron': 30, 'BAR': 20, '7': 9, 'Jackpot': 1})
-    symbols = []
-    for s, w in weights.items():
-        symbols += [s] * w
-    r = [random.choice(symbols) for _ in range(3)]
-    print(' | '.join(r))
-    if r.count('Jackpot') == 3:
-        gain = mise * 100
-    elif r.count('7') == 3:
-        gain = mise * 50
-    elif r.count('BAR') == 3:
-        gain = mise * 20
-    elif r.count('Cerise') >= 2:
-        gain = mise * 3
-    else:
-        gain = 0
-    if gain > 0:
-        joueur.gagner(gain + mise)
-        print(f'Vous gagnez {gain} jetons!')
-    else:
-        print('Pas de gain.')
+		function getMachineChance(machine) {
+			return machineChances[machine] || 0;
+		}
 
+		function setMachineChance(machine, value) {
+			machineChances[machine] = value;
+			saveMachineChances();
+		}
 
-def blackjack_simple(joueur):
-    print('\n--- Blackjack (simplifié) ---')
-    try:
-        mise = int(input('Mise: '))
-    except ValueError:
-        print('Mise invalide')
-        return
-    if not joueur.miser(mise):
-        print('Mise impossible')
-        return
+		function getPlayer(name) {
+			return players[name] || null;
+		}
 
-    def tirage():
-        ranks = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]
-        return random.choice(ranks)
+		function createPlayer(name) {
+			players[name] = { balance: 100, bonusChance: 0, pending: [] };
+			savePlayers();
+			return players[name];
+		}
 
-    def tot(main):
-        s = sum(main)
-        while s > 21 and 11 in main:
-            main[main.index(11)] = 1
-            s = sum(main)
-        return s
+		function setCurrentUser(name) {
+			currentUser = name;
+			localStorage.setItem('casinoUser', name);
+			if (!players[name]) createPlayer(name);
+			updateUI();
+			msg.textContent = `Connecté en tant que ${name}. Bonne chance !`;
+		}
 
-    main_j = [tirage(), tirage()]
-    main_c = [tirage(), tirage()]
-    while True:
-        print(f'Votre main: {main_j} -> {tot(main_j)}')
-        if tot(main_j) > 21:
-            print('Busted!')
-            return
-        cmd = input('Taper H pour tirer, S pour rester: ').strip().upper()
-        if cmd == 'H':
-            main_j.append(tirage())
-            continue
-        else:
-            break
-    while tot(main_c) < 17:
-        main_c.append(tirage())
-    print(f'Banque: {main_c} -> {tot(main_c)}')
-    jscore = tot(main_j)
-    cscore = tot(main_c)
-    if cscore > 21 or jscore > cscore:
-        gain = mise * 2
-        joueur.gagner(gain)
-        print('Vous gagnez!')
-    elif jscore == cscore:
-        joueur.gagner(mise)
-        print('Égalité, mise rendue.')
-    else:
-        print('La banque gagne.')
+		function updateUI() {
+			const player = currentUser ? getPlayer(currentUser) : null;
+			if (!player) {
+				balanceEl.textContent = '0';
+				spinBtn.disabled = true;
+				buyTokensBtn.disabled = true;
+				spinBtn.textContent = 'Jouer (0 pièces)';
+				greeting.textContent = 'Aucun joueur connecté.';
+				return;
+			}
+			balanceEl.textContent = player.balance;
+			bet = Math.min(bet, Math.max(1, player.balance));
+			updateBet();
+			spinBtn.disabled = player.balance < bet;
+			buyTokensBtn.disabled = false;
+			greeting.textContent = `Joueur: ${currentUser} • Bonus ${player.bonusChance}%`;
+			updateAdminList();
+			updateGameButtons();
+		}
 
+		function updateBet() {
+			betEl.textContent = bet;
+			updateGameButtons();
+		}
 
-def tickets_gratter(joueur):
-    print('\n--- Tickets à gratter ---')
-    try:
-        mise = int(input('Prix du ticket: '))
-    except ValueError:
-        print('Mise invalide')
-        return
-    if not joueur.miser(mise):
-        print('Mise impossible')
-        return
-    cases = [random.randint(0, 9) for _ in range(3)]
-    print(' | '.join(map(str, cases)))
-    if cases[0] == cases[1] == cases[2]:
-        gain = mise * 10
-    elif any(cases.count(x) >= 2 for x in cases):
-        gain = mise * 3
-    else:
-        gain = 0
-    if gain > 0:
-        joueur.gagner(gain + mise)
-        print(f'Vous gagnez {gain} jetons!')
-    else:
-        print('Pas de gain.')
+		function setGameSection(game) {
+			currentGame = game;
+			slotsSection.style.display = game === 'slots' ? 'block' : 'none';
+			blackjackSection.style.display = game === 'blackjack' ? 'block' : 'none';
+			tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.game === game));
+			if (!['slots','blackjack'].includes(game)) {
+				msg.textContent = 'Jeu en développement.';
+			}
+			updateGameButtons();
+		}
 
+		function updateGameButtons() {
+			const player = getPlayer(currentUser);
+			const canPlay = player && player.balance >= bet;
+			const inBlackjack = currentGame === 'blackjack' && blackjackState && blackjackState.inRound;
+			spinBtn.style.display = inBlackjack ? 'none' : 'inline-block';
+			hitBtn.style.display = inBlackjack ? 'inline-block' : 'none';
+			standBtn.style.display = inBlackjack ? 'inline-block' : 'none';
+			if (!inBlackjack) {
+				spinBtn.disabled = !canPlay;
+				spinBtn.textContent = currentGame === 'blackjack' ? `Distribuer (${bet} pièces)` : `Jouer (${bet} pièces)`;
+			}
+		}
 
-def loterie(joueur):
-    print('\n--- Loterie ---')
-    try:
-        mise = int(input('Mise (prix du billet): '))
-    except ValueError:
-        print('Mise invalide')
-        return
-    if not joueur.miser(mise):
-        print('Achat impossible')
-        return
-    try:
-        choix = list(map(int, input('Choisissez 3 chiffres (0-9) séparés par espaces: ').split()))
-    except ValueError:
-        print('Entrée invalide')
-        return
-    if len(choix) != 3 or any(not (0 <= n <= 9) for n in choix):
-        print('Choix invalide')
-        return
-    tirage = [random.randint(0, 9) for _ in range(3)]
-    print('Tirage:', ' '.join(map(str, tirage)))
-    matches = sum(1 for a, b in zip(choix, tirage) if a == b)
-    if matches == 3:
-        gain = mise * 50
-    elif matches == 2:
-        gain = mise * 5
-    elif matches == 1:
-        gain = mise * 2
-    else:
-        gain = 0
-    if gain > 0:
-        joueur.gagner(gain + mise)
-        print(f'Vous gagnez {gain} jetons!')
-    else:
-        print('Pas de gain.')
+		function updateBlackjackUI() {
+			if (!blackjackState) {
+				dealerCardsEl.textContent = '—';
+				dealerTotalEl.textContent = '';
+				playerCardsEl.textContent = '—';
+				playerTotalEl.textContent = '';
+			} else {
+				dealerCardsEl.textContent = blackjackState.dealer.map(c => c.face).join(' ');
+				dealerTotalEl.textContent = ` (${handTotal(blackjackState.dealer)})`;
+				playerCardsEl.textContent = blackjackState.player.map(c => c.face).join(' ');
+				playerTotalEl.textContent = ` (${handTotal(blackjackState.player)})`;
+			}
+			updateGameButtons();
+		}
 
+		function createDeck() {
+			const suits = ['♠','♥','♦','♣'];
+			const faces = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+			const deck = [];
+			suits.forEach(s => faces.forEach(f => deck.push({ face: `${f}${s}`, value: f })));
+			return deck.sort(() => Math.random() - 0.5);
+		}
 
-def poker_simple(joueur):
-    print('\n--- Poker (simplifié) ---')
-    try:
-        mise = int(input('Mise pour la partie: '))
-    except ValueError:
-        print('Mise invalide')
-        return
-    if not joueur.miser(mise):
-        print('Mise impossible')
-        return
+		function cardValue(card) {
+			if (card.value === 'A') return 11;
+			if (['J','Q','K'].includes(card.value)) return 10;
+			return parseInt(card.value, 10);
+		}
 
-    def draw_hand():
-        return sorted([random.randint(1, 13) for _ in range(5)])
+		function handTotal(hand) {
+			let total = hand.reduce((sum, card) => sum + cardValue(card), 0);
+			let aces = hand.filter(card => card.value === 'A').length;
+			while (total > 21 && aces > 0) {
+				total -= 10;
+				aces -= 1;
+			}
+			return total;
+		}
 
-    main_j = draw_hand()
-    main_c = draw_hand()
-    print('Votre main:', main_j)
-    print('Adversaire:', main_c)
-    score = lambda h: sum(h)
-    if score(main_j) > score(main_c):
-        joueur.gagner(mise * 2)
-        print('Vous gagnez!')
-    elif score(main_j) == score(main_c):
-        joueur.gagner(mise)
-        print('Égalité, mise rendue.')
-    else:
-        print('Vous perdez.')
+		function startBlackjack() {
+			const player = getPlayer(currentUser);
+			if (!player || player.balance < bet) { msg.textContent = 'Solde insuffisant.'; return; }
+			player.balance -= bet;
+			savePlayers();
+			blackjackState = {
+				deck: createDeck(),
+				player: [],
+				dealer: [],
+				bet,
+				inRound: true
+			};
+			blackjackState.player.push(blackjackState.deck.pop(), blackjackState.deck.pop());
+			blackjackState.dealer.push(blackjackState.deck.pop(), blackjackState.deck.pop());
+			updateUI();
+			updateBlackjackUI();
+			msg.textContent = 'Blackjack commencé. Tirez ou restez.';
+		}
 
+		function concludeBlackjack(result) {
+			const player = getPlayer(currentUser);
+			const betAmount = blackjackState.bet;
+			let payout = 0;
+			if (result === 'win') {
+				payout = betAmount * 2;
+				msg.textContent = `Vous gagnez la main ! +${betAmount} pièces.`;
+			} else if (result === 'push') {
+				payout = betAmount;
+				msg.textContent = 'Égalité ! Votre mise est rendue.';
+			} else {
+				msg.textContent = 'Perdu au blackjack. Bonnes chances pour la prochaine fois.';
+			}
+			if (payout) {
+				player.balance += payout;
+				savePlayers();
+			}
+			blackjackState = null;
+			updateUI();
+			updateBlackjackUI();
+		}
 
-def admin_panel(joueur):
-    pwd = input('Mot de passe admin: ').strip()
-    if pwd != CONFIG.get('admin_password', 'admin'):
-        print('Accès refusé')
-        return
-    print('\n--- Panel Admin ---')
-    print('1) Donner des jetons au joueur courant')
-    print('2) Configurer poids machine à sous')
-    print('3) Configurer numéros rouges roulette')
-    print('4) Gérer achats en attente')
-    print('5) Changer mot de passe admin')
-    print('6) Voir configuration courante')
-    print('0) Retour')
-    c = input('> ').strip()
-    if c == '0':
-        return
-    if c == '1':
-        try:
-            amt = int(input('Montant à donner au joueur courant: '))
-        except ValueError:
-            print('Valeur invalide')
-            return
-        joueur.donner(amt)
-        print('Fait.')
-        return
-    if c == '2':
-        print('Entrez poids pour Cerise,Citron,BAR,7,Jackpot séparés par des espaces')
-        try:
-            p = list(map(int, input('> ').split()))
-        except ValueError:
-            print('Valeur invalide')
-            return
-        if len(p) != 5:
-            print('Nombre invalide')
-            return
-        CONFIG['machine_weights'] = {'Cerise': p[0], 'Citron': p[1], 'BAR': p[2], '7': p[3], 'Jackpot': p[4]}
-        print('Poids mis à jour.')
-        return
-    if c == '3':
-        print('Entrez numéros rouges séparés par des espaces (0 exclu)')
-        try:
-            nums = set(map(int, input('> ').split()))
-        except ValueError:
-            print('Valeur invalide')
-            return
-        CONFIG['roulette_rouges'] = nums
-        print('Rouges mis à jour.')
-        return
-    if c == '4':
-        if not PENDING_PURCHASES:
-            print('Aucun achat en attente.')
-            return
-        for i, ap in enumerate(PENDING_PURCHASES):
-            print(f"[{i}] {ap['nom']} - {ap['jetons']} jetons - {ap['prix']} - statut: {ap.get('statut')}")
-        try:
-            i = int(input('Index à traiter (ou -1 pour annuler): '))
-        except ValueError:
-            print('Valeur invalide')
-            return
-        if i < 0 or i >= len(PENDING_PURCHASES):
-            print('Index invalide')
-            return
-        ap = PENDING_PURCHASES[i]
-        print('1) Approuver')
-        print('2) Rejeter')
-        cmd = input('> ').strip()
-        if cmd == '1':
-            ap['statut'] = 'approved'
-            if ap['nom'] == joueur.nom:
-                joueur.donner(ap.get('jetons', 0))
-            print('Achat approuvé.')
-            return
-        if cmd == '2':
-            ap['statut'] = 'rejected'
-            print('Achat rejeté.')
-            return
-        print('Choix invalide')
-        return
-    if c == '5':
-        npwd = input('Nouveau mot de passe admin: ').strip()
-        if not npwd:
-            print('Mot de passe vide non autorisé')
-            return
-        CONFIG['admin_password'] = npwd
-        print('Mot de passe mis à jour.')
-        return
-    if c == '6':
-        print('Configuration:')
-        print(CONFIG)
-        print('Achats en attente:')
-        for ap in PENDING_PURCHASES:
-            print(ap)
-        return
-    print('Choix invalide')
+		function blackjackHit() {
+			if (!blackjackState || !blackjackState.inRound) return;
+			blackjackState.player.push(blackjackState.deck.pop());
+			if (handTotal(blackjackState.player) > 21) {
+				blackjackState.inRound = false;
+				updateBlackjackUI();
+				concludeBlackjack('lose');
+				return;
+			}
+			updateBlackjackUI();
+			msg.textContent = 'Vous avez tiré une carte. Tirez encore ou restez.';
+		}
 
+		function blackjackStand() {
+			if (!blackjackState || !blackjackState.inRound) return;
+			blackjackState.inRound = false;
+			while (handTotal(blackjackState.dealer) < 17) {
+				blackjackState.dealer.push(blackjackState.deck.pop());
+			}
+			const playerTotal = handTotal(blackjackState.player);
+			const dealerTotal = handTotal(blackjackState.dealer);
+			if (dealerTotal > 21 || playerTotal > dealerTotal) {
+				concludeBlackjack('win');
+			} else if (playerTotal === dealerTotal) {
+				concludeBlackjack('push');
+			} else {
+				concludeBlackjack('lose');
+			}
+		}
 
-def accueil_page(joueur):
-    print('\n--- Page d\'accueil ---')
-    print('Bienvenue! Cliquez sur le bouton pour acheter des jetons (simulé).')
-    print('1) Acheter des jetons')
-    print('2) Retour')
-    c = input('> ').strip()
-    if c == '1':
-        print('\nChoisissez une catégorie:')
-        print('1) 8 jetons  - 3000')
-        print('2) 16 jetons - 6000')
-        print('3) 24 jetons - 8000')
-        choix = input('> ').strip()
-        if choix == '1':
-            PENDING_PURCHASES.append({'nom': joueur.nom, 'jetons': 8, 'prix': 3000, 'statut': 'pending'})
-        elif choix == '2':
-            PENDING_PURCHASES.append({'nom': joueur.nom, 'jetons': 16, 'prix': 6000, 'statut': 'pending'})
-        elif choix == '3':
-            PENDING_PURCHASES.append({'nom': joueur.nom, 'jetons': 24, 'prix': 8000, 'statut': 'pending'})
-        else:
-            print('Choix invalide')
-            return
-        print('Achat enregistré et en attente de validation par un admin.')
-    else:
-        return
+		function randomSymbol() {
+			return symbols[Math.floor(Math.random() * symbols.length)];
+		}
 
+		function getBalance() {
+			const player = getPlayer(currentUser);
+			return player ? player.balance : 0;
+		}
 
-def menu():
-    nom = input('Entrez votre nom: ').strip() or 'Joueur'
-    joueur = Joueur(nom)
-    actions = {
-        '1': roulette_europeenne,
-        '2': machine_a_sous,
-        '3': blackjack_simple,
-        '4': tickets_gratter,
-        '5': poker_simple,
-    }
-    while True:
-        try:
-            import keyboard
-            keyboard.add_hotkey('ctrl+a+d', lambda: admin_panel(joueur))
-        except Exception:
-            pass
-        affiche_solde(joueur)
-        print('\nChoisissez un jeu:')
-        print('1) Roulette (européenne)')
-        print('2) Machine à sous')
-        print('3) Blackjack (simplifié)')
-        print('4) Tickets à gratter')
-        print('5) Poker (simplifié)')
-        print('6) Acheter des crédits')
-        print('7) Accéder au panel admin')
-        print('8) Quitter')
-        c = input('> ').strip()
-        if c == '8':
-            print('Au revoir!')
-            break
-        if c == '7':
-            admin_panel(joueur)
-            continue
-        if c == '6':
-            accueil_page(joueur)
-            continue
-        if c in actions:
-            actions[c](joueur)
-        else:
-            print('Choix invalide')
+		function setBalance(v) {
+			if (!currentUser) return;
+			players[currentUser].balance = Math.max(0, v);
+			savePlayers();
+			updateUI();
+		}
 
+		function login() {
+			const name = playerNameInput.value.trim();
+			if (!name) { msg.textContent = 'Entrez un pseudo valide.'; return; }
+			setCurrentUser(name);
+		}
 
-def entree_validation():
-    """Demande à l'utilisateur de valider l'entrée du casino avant d'accéder au menu."""
-    print('Avant d\'entrer, veuillez confirmer:')
-    print("Tapez exactement: je valide le casino")
-    print("Ou 'q' pour quitter.")
-    while True:
-        rep = input('> ').strip().lower()
-        if rep == 'je valide le casino':
-            print('Accès autorisé. Bon jeu !')
-            return True
-        if rep == 'q':
-            print('Accès refusé. Au revoir.')
-            return False
-        print("Réponse non reconnue. Tapez 'je valide le casino' pour entrer ou 'q' pour quitter.")
+		function spin() {
+			if (!currentUser) { msg.textContent = 'Connectez-vous d'abord.'; return; }
+			if (currentGame === 'blackjack') { startBlackjack(); return; }
+			const player = getPlayer(currentUser);
+			if (!player || player.balance < bet) { msg.textContent = 'Solde insuffisant.'; return; }
+			spinBtn.disabled = true;
+			msg.textContent = 'Roulement...';
+			setBalance(player.balance - bet);
+			let duration = 1200;
+			let start = Date.now();
+			let iv = setInterval(() => {
+				r1.textContent = randomSymbol();
+				r2.textContent = randomSymbol();
+				r3.textContent = randomSymbol();
+				if (Date.now() - start > duration) { clearInterval(iv); settle(); }
+			}, 80);
+		}
 
+		function settle() {
+			const s1 = randomSymbol(), s2 = randomSymbol(), s3 = randomSymbol();
+			r1.textContent = s1; r2.textContent = s2; r3.textContent = s3;
+			const player = getPlayer(currentUser);
+			let payout = 0;
+			if (s1 === s2 && s2 === s3) payout = bet * 5;
+			else if (s1 === s2 || s1 === s3 || s2 === s3) payout = bet * 2;
+			const machineChance = getMachineChance('slots');
+			const luckySpin = Math.random() * 100 < machineChance;
+			if (luckySpin) {
+				payout = Math.max(payout, bet * 2);
+				msg.textContent = `Chance machine activée ! `;
+			}
+			if (Math.random() * 100 < player.bonusChance) {
+				payout += bet;
+				msg.textContent += `Bonus admin obtenu ! +${bet} pièces. `;
+			}
+			if (payout > 0) {
+				setBalance(player.balance + payout);
+				msg.textContent += `Vous gagnez ${payout} pièces !`;
+			} else {
+				msg.textContent = 'Perdu. Essayez encore.';
+			}
+			spinBtn.disabled = false;
+		}
 
-if __name__ == '__main__':
-    try:
-        if not entree_validation():
-            sys.exit(0)
-        menu()
-    except KeyboardInterrupt:
-        print('\nSortie')
-        sys.exit(0)
+		function addPendingPurchase() {
+			const amount = Math.max(1, parseInt(buyAmountInput.value, 10) || 0);
+			if (!currentUser || amount <= 0) {
+				msg.textContent = 'Entrez un montant valide.';
+				return;
+			}
+			const player = getPlayer(currentUser);
+			player.pending.push({ id: Date.now() + '-' + Math.random().toString(36).slice(2), amount });
+			savePlayers();
+			updateAdminList();
+			msg.textContent = `Achat de ${amount} jetons en attente de validation.`;
+		}
+
+		function updateAdminList() {
+			adminMachineSelect.innerHTML = '';
+			adminPlayerSelect.innerHTML = '';
+			adminMachineList.innerHTML = '';
+			adminPlayerList.innerHTML = '';
+			adminPendingList.innerHTML = '';
+			Object.keys(machineNames).forEach(machine => {
+				const option = document.createElement('option');
+				option.value = machine;
+				option.textContent = machineNames[machine];
+				adminMachineSelect.appendChild(option);
+
+				const item = document.createElement('div');
+				item.className = 'admin-item';
+				item.innerHTML = `<span>${machineNames[machine]}</span><span>Probabilité: ${getMachineChance(machine)}%</span>`;
+				adminMachineList.appendChild(item);
+			});
+			const names = Object.keys(players);
+			names.forEach(name => {
+				const player = players[name];
+				const option = document.createElement('option');
+				option.value = name;
+				option.textContent = name;
+				adminPlayerSelect.appendChild(option);
+
+				const item = document.createElement('div');
+				item.className = 'admin-item';
+				item.innerHTML = `<span>${name}</span><span>Solde: ${player.balance} | Bonus: ${player.bonusChance}% | En attente: ${player.pending.length}</span>`;
+				adminPlayerList.appendChild(item);
+
+				player.pending.forEach(p => {
+					const pendingItem = document.createElement('div');
+					pendingItem.className = 'admin-item';
+					pendingItem.innerHTML = `<span>${name} demande ${p.amount} jetons</span><button data-player="${name}" data-id="${p.id}">Valider</button>`;
+					adminPendingList.appendChild(pendingItem);
+				});
+			});
+			if (adminPlayerSelect.children.length === 0) {
+				adminPlayerList.textContent = 'Aucun joueur enregistré.';
+				adminPendingList.textContent = 'Aucun achat en attente.';
+			}
+			if (adminMachineSelect.children.length === 0) {
+				adminMachineList.textContent = 'Aucune machine configurée.';
+			}
+		}
+
+		function setAdminChance() {
+			const name = adminPlayerSelect.value;
+			const value = Math.max(0, Math.min(100, parseInt(adminChanceInput.value, 10) || 0));
+			if (!name) return;
+			players[name].bonusChance = value;
+			savePlayers();
+			updateUI();
+			msg.textContent = `Bonus joueur de ${value}% défini pour ${name}.`;
+		}
+
+		function setAdminMachineChance() {
+			const machine = adminMachineSelect.value;
+			const value = Math.max(0, Math.min(100, parseInt(adminMachineChanceInput.value, 10) || 0));
+			if (!machine) return;
+			setMachineChance(machine, value);
+			updateAdminList();
+			msg.textContent = `Probabilité ${value}% définie pour ${machineNames[machine]}.`;
+		}
+
+		function validatePending(event) {
+			if (event.target.tagName !== 'BUTTON') return;
+			const name = event.target.dataset.player;
+			const id = event.target.dataset.id;
+			const player = players[name];
+			if (!player) return;
+			const index = player.pending.findIndex(p => p.id === id);
+			if (index === -1) return;
+			const purchase = player.pending.splice(index, 1)[0];
+			player.balance += purchase.amount;
+			savePlayers();
+			updateUI();
+			updateAdminList();
+			msg.textContent = `Achat validé: ${purchase.amount} jetons pour ${name}.`;
+		}
+
+		function toggleAdmin() {
+			adminPanel.classList.toggle('active');
+			updateAdminList();
+		}
+
+		window.addEventListener('keydown', e => {
+			hotKeys.add(e.code);
+			if (e.ctrlKey && hotKeys.has('KeyA') && hotKeys.has('KeyD')) {
+				e.preventDefault();
+				toggleAdmin();
+			}
+		});
+
+		window.addEventListener('keyup', e => {
+			hotKeys.delete(e.code);
+		});
+
+		loginBtn.addEventListener('click', login);
+		spinBtn.addEventListener('click', spin);
+		betUp.addEventListener('click', () => { bet = Math.min(100, bet + 5); updateBet(); });
+		betDown.addEventListener('click', () => { bet = Math.max(1, bet - 5); updateBet(); });
+		buyTokensBtn.addEventListener('click', addPendingPurchase);
+		tabs.forEach(tab => tab.addEventListener('click', () => setGameSection(tab.dataset.game)));
+		hitBtn.addEventListener('click', blackjackHit);
+		standBtn.addEventListener('click', blackjackStand);
+		adminSetMachineChance.addEventListener('click', setAdminMachineChance);
+		adminSetChance.addEventListener('click', setAdminChance);
+		adminPendingList.addEventListener('click', validatePending);
+		adminClose.addEventListener('click', toggleAdmin);
+		window.addEventListener('keydown', e => {
+			if (e.code === 'Space' && !adminPanel.classList.contains('active')) {
+				e.preventDefault();
+				spin();
+			}
+		});
+
+		if (currentUser) updateUI();
+		updateAdminList();
+	</script>
+</body>
+</html>
