@@ -1,657 +1,363 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width,initial-scale=1" />
-	<title>Casino - Accueil</title>
-	<style>
-		body{font-family:Arial,Helvetica,sans-serif;background:#0b1020;color:#fff;margin:0}
-		.container{max-width:900px;margin:40px auto;padding:20px;background:#111428;border-radius:8px}
-		.header{display:flex;justify-content:space-between;align-items:center}
-		input[type=text]{padding:8px;border-radius:4px;border:1px solid #333;background:#0f1724;color:#fff}
-		button{padding:8px 12px;border-radius:4px;border:none;background:#f39c12;color:#000;cursor:pointer}
-		.admin{position:fixed;right:16px;top:16px;width:260px;background:#0f1724;padding:12px;border-radius:8px;border:1px solid #222}
-		.admin h3{margin:0 0 8px 0;font-size:16px}
-		.user-list{max-height:300px;overflow:auto;margin-top:8px;border-top:1px solid #222;padding-top:8px}
-		.user-item{padding:6px;border-bottom:1px dashed #222;font-size:14px}
-		.offers{margin-top:16px}
-		.offer{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #222}
-		.offer button{background:#16a085;color:#fff}
-		.offer-desc{color:#999;font-size:14px;margin-left:12px}
-		.game-nav{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
-		.game-nav button{background:#34495e;color:#fff;border:none;border-radius:4px;padding:8px 10px;cursor:pointer}
-		.game-nav button.active{background:#f39c12;color:#000}
-		.admin{position:fixed;right:16px;top:16px;width:320px;background:#0f1724;padding:12px;border-radius:8px;border:2px solid #f39c12;display:none;z-index:1000}
-		.admin.active{display:block}
-		.admin-lock{text-align:center;padding:20px;color:#f39c12}
-		.admin-lock input{padding:8px;width:100%;margin:8px 0;box-sizing:border-box}
-		.admin-lock button{width:100%;margin-top:8px;background:#f39c12}
-		.admin h3{margin:0 0 12px 0;font-size:16px;color:#f39c12}
-		.admin-nav{display:flex;flex-direction:column;gap:6px}
-		.admin-nav button{background:#34495e;color:#fff;padding:8px;font-size:13px}
-		.admin-nav button.active{background:#f39c12;color:#000}
-		.admin-section{display:none;border-top:1px solid #333;padding-top:8px;max-height:250px;overflow-y:auto}
-		.admin-section.active{display:block}
-		.admin-section input{width:100%;padding:6px;margin:4px 0;box-sizing:border-box}
-	</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Authentification</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #f2f2f2;
+      margin: 0;
+    }
+    .container {
+      background: #fff;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      width: 320px;
+    }
+    h1 {
+      margin-top: 0;
+      font-size: 22px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #007bff;
+      border: none;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .message {
+      color: red;
+      margin-bottom: 16px;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-	<div class="container" id="loginPage">
-		<div class="header">
-			<h1>Bienvenue au Casino</h1>
-			<div>
-				<label for="pseudo">Pseudo :</label>
-				<input id="pseudo" type="text" placeholder="Entrez votre pseudo" />
-				<button id="enterBtn">Entrer</button>
-			</div>
-		</div>
-		<p id="message">Veuillez entrer votre pseudo pour commencer le jeu vidéo.</p>
-	</div>
+  <div class="container">
+    <h1>Connexion</h1>
+    <div id="message" class="message"></div>
+    <form id="loginForm">
+      <label for="username">Pseudo</label>
+      <input type="text" id="username" name="username" placeholder="Entrez votre pseudo" />
 
-	<div class="container" id="shopPage" style="display:none">
-		<div class="header">
-			<h1>Casino - Boutique de jetons</h1>
-			<div>
-				<p id="balanceDisplay">Jetons : 0</p>
-			</div>
-		</div>
-		<div class="game-nav">
-			<button class="navBtn active" data-page="shopPage">Achat de jetons</button>
-			<button class="navBtn" data-page="slotPage">Machine à sous</button>
-			<button class="navBtn" data-page="blackjackPage">Black Jack</button>
-			<button class="navBtn" data-page="pokerPage">Poker</button>
-			<button class="navBtn" data-page="scratchPage">Ticket à gratter</button>
-			<button class="navBtn" data-page="lotteryPage">Loterie</button>
-		</div>
-		<p id="welcome"></p>
-		<div class="offers">
-			<h2>Choisissez une offre</h2>
-			<div class="offer">
-				<button class="buyBtn" data-qty="10" data-cost="3000">10 jetons - 3k</button>
-				<span class="offer-desc">Achat soumis à validation admin</span>
-			</div>
-			<div class="offer">
-				<button class="buyBtn" data-qty="20" data-cost="6000">20 jetons - 6k</button>
-				<span class="offer-desc">Achat soumis à validation admin</span>
-			</div>
-			<div class="offer">
-				<button class="buyBtn" data-qty="30" data-cost="8000">30 jetons - 8k</button>
-				<span class="offer-desc">Achat soumis à validation admin</span>
-			</div>
-		</div>
-		<p id="shopMessage" style="margin-top:12px"></p>
-		<div id="pendingSection" style="margin-top:16px">
-			<h3>Mes achats en attente</h3>
-			<div class="user-list" id="pendingList"></div>
-		</div>
-		<button id="adminBtn" style="position:fixed;bottom:20px;right:20px;background:#f39c12;padding:10px 16px;border-radius:4px;border:none;cursor:pointer;font-weight:bold;z-index:999">Admin Panel</button>
-		
-		<!-- Admin Panel -->
-		<div class="admin" id="adminPanel">
-			<div id="adminLock" class="admin-lock" style="display:block">
-				<p>Accès Admin sécurisé</p>
-				<input type="password" id="adminPassword" placeholder="Mot de passe" />
-				<button id="adminUnlock">Déverrouiller</button>
-				<p style="font-size:12px;margin-top:8px">Raccourci : Ctrl+P</p>
-			</div>
-			<div id="adminContent" style="display:none">
-				<h3>Admin Panel</h3>
-				<div class="admin-nav">
-					<button class="adminBtn active" data-admin="validation">Validation Achats</button>
-					<button class="adminBtn" data-admin="users">Comptes en Ligne</button>
-					<button class="adminBtn" data-admin="probabilities">Probabilités Jeux</button>
-					<button class="adminBtn" data-admin="give">Donner Jetons</button>
-					<button id="adminLogout" style="background:#e74c3c;color:#fff;margin-top:8px;width:100%">Fermer Panel</button>
-				</div>
-				<div class="admin-sections" style="margin-top:8px">
-					<div class="admin-section active" data-section="validation">
-						<p>Liste des achats à valider :</p>
-						<div class="user-list" id="adminPending"></div>
-					</div>
-					<div class="admin-section" data-section="users" style="display:none">
-						<p>Liste des utilisateurs :</p>
-						<div class="user-list" id="adminUsers"></div>
-						<p style="margin:12px 0 4px 0">Utilisateurs bannis :</p>
-						<div class="user-list" id="bannedList"></div>
-					</div>
-					<div class="admin-section" data-section="probabilities" style="display:none">
-						<p>Probabilités des jeux (modifiable) :</p>
-						<div id="probControls">
-							<label>Machine à sous: <input type="number" id="probSlot" min="0" max="100" step="1" value="50" /></label><br/>
-							<label>Blackjack: <input type="number" id="probBlack" min="0" max="100" step="1" value="42" /></label><br/>
-							<label>Poker: <input type="number" id="probPoker" min="0" max="100" step="1" value="10" /></label><br/>
-							<label>Ticket à gratter: <input type="number" id="probScratch" min="0" max="100" step="1" value="12" /></label><br/>
-							<button id="saveProbBtn" style="margin-top:8px;background:#16a085;color:#fff;padding:6px 10px;border:none;border-radius:4px;cursor:pointer">Sauvegarder</button>
-							<p id="probMsg" style="margin-top:8px;color:#f39c12"></p>
-						</div>
-					</div>
-					<div class="admin-section" data-section="give" style="display:none">
-						<p>Donner des jetons :</p>
-						<input type="text" id="giveUser" placeholder="Pseudo" /> <input type="number" id="giveAmount" placeholder="Quantité" /> <button id="giveBtn">Donner</button>
-						<p id="giveMsg" style="margin-top:8px"></p>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+      <label for="password">Mot de passe</label>
+      <input type="password" id="password" name="password" placeholder="Entrez votre mot de passe" />
 
-	<div class="container" id="slotPage" style="display:none">
-		<div class="header">
-			<h1>Machine à sous</h1>
-			<div>
-				<p id="balanceDisplaySlot">Jetons : 0</p>
-			</div>
-		</div>
-		<div class="game-nav">
-			<button class="navBtn" data-page="shopPage">Achat de jetons</button>
-			<button class="navBtn" data-page="slotPage">Machine à sous</button>
-			<button class="navBtn" data-page="blackjackPage">Black Jack</button>
-			<button class="navBtn" data-page="pokerPage">Poker</button>
-			<button class="navBtn" data-page="scratchPage">Ticket à gratter</button>
-			<button class="navBtn" data-page="lotteryPage">Loterie</button>
-		</div>
-		<p id="slotWelcome" style="margin-top:0">Jouez à la machine à sous et tentez de gagner des jetons.</p>
-		<div class="offer">
-			<div>
-				<strong>Machine à sous</strong>
-				<p class="offer-desc">1 jeton par tour. Probabilité de gain réglable dans le panneau admin.</p>
-			</div>
-			<button id="playSlotBtn">Jouer 1 jeton</button>
-		</div>
-		<p id="slotResult" style="margin-top:8px;color:#f1c40f"></p>
-		<p id="slotMessage" style="margin-top:12px"></p>
-	</div>
+      <button type="submit">Se connecter</button>
+    </form>
 
-	<div class="container" id="scratchPage" style="display:none">
-		<div class="header">
-			<h1>Ticket à gratter</h1>
-			<div>
-				<p id="balanceDisplayScratch">Jetons : 0</p>
-			</div>
-		</div>
-		<div class="game-nav">
-			<button class="navBtn" data-page="shopPage">Achat de jetons</button>
-			<button class="navBtn" data-page="slotPage">Machine à sous</button>
-			<button class="navBtn" data-page="blackjackPage">Black Jack</button>
-			<button class="navBtn" data-page="pokerPage">Poker</button>
-			<button class="navBtn" data-page="scratchPage">Ticket à gratter</button>
-			<button class="navBtn" data-page="lotteryPage">Loterie</button>
-		</div>
-		<p style="margin-top:0">Grattez votre ticket pour tenter de gagner des jetons.</p>
-		<div class="offer">
-			<div>
-				<strong>Ticket à gratter</strong>
-				<p class="offer-desc">Coût 2 jetons. Gagnez 10 jetons si vous obtenez au moins 2 symboles identiques.</p>
-			</div>
-			<button id="playScratchBtn">Gratter 2 jetons</button>
-		</div>
-		<p id="scratchResult" style="margin-top:8px;color:#f1c40f"></p>
-	</div>
+    <div id="content" class="hidden">
+      <h2>Accès autorisé</h2>
+      <p>Bienvenue au casino. Choisissez une catégorie :</p>
+      <div class="nav-buttons">
+        <button type="button" data-target="buyTokens">Acheter jetons</button>
+        <button type="button" data-target="slots">Machine à sous</button>
+        <button type="button" data-target="blackjack">Blackjack</button>
+        <button type="button" data-target="scratch">Tickets à gratter</button>
+        <button type="button" data-target="lotto">Loto</button>
+      </div>
+      <div id="balance" class="balance">Jetons disponibles : 0</div>
 
-	<div class="container" id="blackjackPage" style="display:none">
-		<div class="header">
-			<h1>Black Jack</h1>
-			<div>
-				<p id="balanceDisplayBJ">Jetons : 0</p>
-			</div>
-		</div>
-		<div class="game-nav">
-			<button class="navBtn" data-page="shopPage">Achat de jetons</button>
-			<button class="navBtn" data-page="slotPage">Machine à sous</button>
-			<button class="navBtn" data-page="blackjackPage">Black Jack</button>
-			<button class="navBtn" data-page="pokerPage">Poker</button>
-			<button class="navBtn" data-page="scratchPage">Ticket à gratter</button>
-			<button class="navBtn" data-page="lotteryPage">Loterie</button>
-		</div>
-		<p>Jouez au Black Jack contre le croupier.</p>
-		<div style="margin-top:8px">
-			<label for="bjBet">Mise :</label>
-			<input id="bjBet" type="number" min="1" value="1" style="width:80px;margin-left:8px" />
-			<button id="dealBjBtn">Distribuer</button>
-		</div>
-		<div id="bjArea" style="margin-top:12px;display:none">
-			<p><strong>Votre main:</strong> <span id="playerCards"></span> (<span id="playerTotal">0</span>)</p>
-			<p><strong>Croupier:</strong> <span id="dealerCards"></span> (<span id="dealerTotal">0</span>)</p>
-			<div>
-				<button id="hitBtn">Tirer</button>
-				<button id="standBtn">Rester</button>
-			</div>
-			<p id="bjMessage" style="margin-top:8px;color:#f1c40f"></p>
-		</div>
-	</div>
+      <div id="buyTokens" class="casino-section hidden">
+        <h3>Acheter des jetons</h3>
+        <p>Ajoutez des jetons à votre balance pour jouer.</p>
+        <label for="tokenAmount">Nombre de jetons :</label>
+        <input type="number" id="tokenAmount" min="1" value="10" />
+        <button id="buyButton" type="button">Acheter</button>
+        <div id="buyMessage" class="result"></div>
+      </div>
 
-	<div class="container" id="pokerPage" style="display:none">
-		<div class="header">
-			<h1>Poker</h1>
-			<div>
-				<p id="balanceDisplayPoker">Jetons : 0</p>
-			</div>
-		</div>
-		<div class="game-nav">
-			<button class="navBtn" data-page="shopPage">Achat de jetons</button>
-			<button class="navBtn" data-page="slotPage">Machine à sous</button>
-			<button class="navBtn" data-page="blackjackPage">Black Jack</button>
-			<button class="navBtn" data-page="pokerPage">Poker</button>
-			<button class="navBtn" data-page="scratchPage">Ticket à gratter</button>
-			<button class="navBtn" data-page="lotteryPage">Loterie</button>
-		</div>
-		<p>Poker sera disponible bientôt.</p>
-	</div>
+      <div id="slots" class="casino-section hidden">
+        <h3>Machine à sous</h3>
+        <p>Faites tourner les rouleaux et gagnez des jetons.</p>
+        <div id="slotResult" class="result"></div>
+        <button id="spinButton" type="button">Lancer</button>
+      </div>
 
-	<div class="container" id="lotteryPage" style="display:none">
-		<div class="header">
-			<h1>Loterie</h1>
-			<div>
-				<p id="balanceDisplayLottery">Jetons : 0</p>
-			</div>
-		</div>
-		<div class="game-nav">
-			<button class="navBtn" data-page="shopPage">Achat de jetons</button>
-			<button class="navBtn" data-page="slotPage">Machine à sous</button>
-			<button class="navBtn" data-page="blackjackPage">Black Jack</button>
-			<button class="navBtn" data-page="pokerPage">Poker</button>
-			<button class="navBtn" data-page="scratchPage">Ticket à gratter</button>
-			<button class="navBtn" data-page="lotteryPage">Loterie</button>
-		</div>
-		<p>Loterie sera disponible bientôt.</p>
-	</div>
+      <div id="blackjack" class="casino-section hidden">
+        <h3>Blackjack</h3>
+        <p>Essayez de battre le croupier sans dépasser 21.</p>
+        <div id="blackjackInfo" class="result"></div>
+        <div class="blackjack-controls">
+          <button id="dealButton" type="button">Distribuer</button>
+          <button id="hitButton" type="button" disabled>Carte</button>
+          <button id="standButton" type="button" disabled>Rester</button>
+        </div>
+      </div>
 
-	<script>
-		const pseudoInput = document.getElementById('pseudo');
-		const enterBtn = document.getElementById('enterBtn');
-		const message = document.getElementById('message');
-		const shopPage = document.getElementById('shopPage');
-		const welcome = document.getElementById('welcome');
-		const userList = document.getElementById('userList');
-		const bannedList = document.getElementById('bannedList');
-		const requestList = document.getElementById('requestList');
-		const balanceDisplay = document.getElementById('balanceDisplay');
-		const balanceDisplaySlot = document.getElementById('balanceDisplaySlot');
-		const balanceDisplayScratch = document.getElementById('balanceDisplayScratch');
-		const balanceDisplayBJ = document.getElementById('balanceDisplayBJ');
-		const balanceDisplayPoker = document.getElementById('balanceDisplayPoker');
-		const balanceDisplayLottery = document.getElementById('balanceDisplayLottery');
-		const buyButtons = document.querySelectorAll('.buyBtn');
-		const pendingList = document.getElementById('pendingList');
-		const shopMessage = document.getElementById('shopMessage');
-		const adminPanel = document.getElementById('adminPanel');
-		const machineProbInput = document.getElementById('machineProb');
-		const saveProbBtn = document.getElementById('saveProbBtn');
-		const clearBtn = document.getElementById('clearBtn');
-		const playSlotBtn = document.getElementById('playSlotBtn');
-		const slotResult = document.getElementById('slotResult');
-		const slotMessage = document.getElementById('slotMessage');
-		const playScratchBtn = document.getElementById('playScratchBtn');
-		const adminUserList = document.getElementById('adminUsers');
-		const bannedList = document.getElementById('bannedList');
-		const adminPending = document.getElementById('adminPendingkjackPage','pokerPage','lotteryPage'];
+      <div id="scratch" class="casino-section hidden">
+        <h3>Tickets à gratter</h3>
+        <p>Grattez pour découvrir si vous gagnez.</p>
+        <button id="scratchButton" type="button">Gratter</button>
+        <div id="scratchResult" class="result"></div>
+      </div>
 
-		let currentUser = null;
+      <div id="lotto" class="casino-section hidden">
+        <h3>Loto</h3>
+        <p>Choisissez 5 numéros entre 1 et 20.</p>
+        <div id="lottoNumbers"></div>
+        <button id="drawLottoButton" type="button">Tirage</button>
+        <div id="lottoResult" class="result"></div>
+      </div>
+    </div>
+  </div>
 
-		function loadUsers(){ return JSON.parse(localStorage.getItem('casino_users')||'[]'); }
-		function saveUsers(list){ localStorage.setItem('casino_users',JSON.stringify(list)); }
-		function loadBanned(){ return JSON.parse(localStorage.getItem('casino_banned')||'[]'); }
-		function saveBanned(list){ localStorage.setItem('casino_banned',JSON.stringify(list)); }
-		function loadRequests(){ return JSON.parse(localStorage.getItem('casino_requests')||'[]'); }
-		function saveRequests(list){ localStorage.setItem('casino_requests',JSON.stringify(list)); }
-		function loadBalances(){ return JSON.parse(localStorage.getItem('casino_balances')||'{}'); }
-		function saveBalances(data){ localStorage.setItem('casino_balances',JSON.stringify(data)); }
-		function loadMachineProb(){ return Number(localStorage.getItem('casino_machine_prob')||50); }
-		function saveMachineProb(value){ localStorage.setItem('casino_machine_prob',value); }
+  <script>
+    const loginForm = document.getElementById('loginForm');
+    const messageEl = document.getElementById('message');
+    const contentEl = document.getElementById('content');
+    const balanceEl = document.getElementById('balance');
+    const navButtons = document.querySelectorAll('.nav-buttons button');
+    const sections = document.querySelectorAll('.casino-section');
 
-		function renderUsers(){
-			const banned = loadBanned();
-			const users = loadUsers().filter(u=>!banned.includes(u));
-			userList.innerHTML = users.length
-				? users.map(u=>`<div class="user-item">${u} <button onclick="banUser('${u}')" style="float:right;background:#c0392b;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer">Ban</button></div>`).join('')
-				: '<adminNavButtons = document.querySelectorAll('.adminBtn');
-		const adminSections = document.querySelectorAll('.admin-section');
-		const div class="user-item">Aucun utilisateur</div>';
-		}
+    const validCredentials = {
+      username: 'admin',
+      password: 'motdepasse123'
+    };
 
-		function renderBanned(){
-			const banned = loadBanned();
-			bannedList.innerHTML = banned.length
-				? banned.map(u=>`<div class="user-item">${u} <button onclick="unbanUser('${u}')" style="float:right;background:#27ae60;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer">Débannir</button></div>`).join('')
-				: '<div class="user-item">Aucun utilisateur banni</div>';
-		}
+    let tokens = 0;
+    let blackjackState = null;
 
-		function renderRequests(){
-			const requests = loadRequests();
-			requestList.innerHTML = requests.length
-				? requests.map(r=>`<div class="user-item">${r.user} - ${r.qty} jetons (${r.cost} co)
-					<button onclick="acceptRequest(${r.id})" style="margin-left:8px;background:#16a085;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer">Accepter</button>
-					<button onclick="rejectRequest(${r.id})" style="margin-left:4px;background:#c0392b;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer">Rejeter</button>
-			adminU</div>`).join('')
-				: '<div class="user-item">Aucune demande en attente</div>';
-			renderPendingList();
-		}
+    function updateBalance() {
+      balanceEl.textContent = `Jetons disponibles : ${tokens}`;
+    }
 
-		function renderPendingList(){
-			if(!currentUser){
-				pendingList.innerHTML = '<div class="user-item">Connectez-vous pour voir vos demandes.</div>';
-				return;
-			}
-			const requests = loadRequests().filter(r=>r.user===currentUser);
-			pendingList.innerHTML = requests.length
-				? requests.map(r=>`<div class="user-item">${r.qty} jetons - ${r.cost} co - demandé le ${r.created}</div>`).join('')
-				: '<div class="user-item">Aucune demande en attente</div>';
-		}adminPending
+    function showSection(id) {
+      sections.forEach(section => section.classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+    }
 
-		function updateBalanceDisplay(){
-			const balances = loadBalances();
-			const amount = currentUser ? (balances[currentUser]||0) : 0;
-			balanceDisplay.textContent = `Jetons : ${amount}`;
-			balanceDisplaySlot.textContent = `Jetons : ${amount}`;
-			balanceDisplayScratch.textContent = `Jetons : ${amount}`;
-			balanceDisplayBJ.textContent = `Jetons : ${amount}`;
-			balanceDisplayPoker.textContent = `Jetons : ${amount}`;
-			balanceDisplayLottery.textContent = `Jetons : ${amount}`;
-		}
+    navButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        showSection(button.dataset.target);
+      });
+    });
 
-		function showPage(pageId){
-			pages.forEach(id=>{
-				const page = document.getElementById(id);
-				if(page) page.style.display = id===pageId ? 'block' : 'none';
-			});
-			navButtons.forEach(btn=>btn.classList.toggle('active', btn.dataset.page===pageId));
-			updateBalanceDisplay();
-		}setAdminSection(sectionName){
-			adminNavButtons.forEach(btn=>btn.classList.toggle('active', btn.dataset.admin===sectionName));
-			adminSections.forEach(sec=>{
-				const visible = sec.dataset.section===sectionName;
-				sec.classList.toggle('active', visible);
-				sec.style.display = visible ? 'block' : 'none';
-			});
-		}
+    loginForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
 
-		function 
+      if (!username || !password) {
+        messageEl.textContent = 'Veuillez remplir le pseudo et le mot de passe.';
+        contentEl.classList.add('hidden');
+        return;
+      }
 
-		function banUser(name){
-			const banned = loadBanned();
-			if(!banned.includes(name)){
-				banned.push(name);
-				saveBanned(banned);
-			}
-			renderUsers();
-			renderBanned();
-		}
+      if (username === validCredentials.username && password === validCredentials.password) {
+        messageEl.textContent = '';
+        contentEl.classList.remove('hidden');
+        loginForm.classList.add('hidden');
+        showSection('buyTokens');
+      } else {
+        messageEl.textContent = 'Pseudo ou mot de passe invalide. Accès refusé.';
+        contentEl.classList.add('hidden');
+      }
+    });
 
-		function unbanUser(name){
-			const banned = loadBanned().filter(u=>u!==name);
-			saveBanned(banned);
-			renderUsers();
-			renderBanned();
-		}
+    document.getElementById('buyButton').addEventListener('click', () => {
+      const amount = parseInt(document.getElementById('tokenAmount').value, 10);
+      const buyMessage = document.getElementById('buyMessage');
+      if (isNaN(amount) || amount < 1) {
+        buyMessage.textContent = 'Veuillez entrer un nombre de jetons valide.';
+        return;
+      }
+      tokens += amount;
+      updateBalance();
+      buyMessage.textContent = `Vous avez acheté ${amount} jetons.`;
+    });
 
-		function createRequest(qty,cost){
-			if(!currentUser){
-				shopMessage.textContent = 'Connectez-vous avant de faire un achat.';
-				return;
-			}
-			const requests = loadRequests();
-			requests.push({id:Date.now(),user:currentUser,qty,cost,created:new Date().toLocaleString()});
-			saveRequests(requests);
-			renderRequests();
-			shopMessage.textContent = `Demande de ${qty} jetons envoyée. En attente validation.`;
-		}
+    document.getElementById('spinButton').addEventListener('click', () => {
+      const slotResult = document.getElementById('slotResult');
+      if (tokens < 1) {
+        slotResult.textContent = 'Vous avez besoin d au moins 1 jeton pour jouer.';
+        return;
+      }
+      const symbols = ['🍒', '🍋', '7', '⭐', '🍀'];
+      const reels = [
+        symbols[Math.floor(Math.random() * symbols.length)],
+        symbols[Math.floor(Math.random() * symbols.length)],
+        symbols[Math.floor(Math.random() * symbols.length)]
+      ];
+      slotResult.textContent = reels.join(' | ');
+      let reward = 0;
+      if (reels[0] === reels[1] && reels[1] === reels[2]) {
+        reward = 20;
+        slotResult.textContent += ' - Jackpot ! +20 jetons';
+      } else if (reels[0] === reels[1] || reels[1] === reels[2] || reels[0] === reels[2]) {
+        reward = 5;
+        slotResult.textContent += ' - Bien joué ! +5 jetons';
+      } else {
+        reward = -1;
+        slotResult.textContent += ' - Perdu. -1 jeton';
+      }
+      tokens += reward;
+      if (tokens < 0) tokens = 0;
+      updateBalance();
+    });
 
-		function acceptRequest(id){
-			const requests = loadRequests();
-			const request = requests.find(r=>r.id===id);
-			if(!request) return;
-			const balances = loadBalances();
-			balances[request.user] = (balances[request.user]||0) + request.qty;
-			saveBalances(balances);
-			saveRequests(requests.filter(r=>r.id!==id));
-			renderRequests();
-			if(request.user===currentUser) updateBalanceDisplay();
-		}
+    function createDeck() {
+      const cards = [];
+      for (let i = 1; i <= 10; i++) cards.push(i);
+      cards.push(10, 10, 10);
+      return cards;
+    }
 
-		function rejectRequest(id){
-			saveRequests(loadRequests().filter(r=>r.id!==id));
-			renderRequests();
-		}
+    function totalHand(hand) {
+      return hand.reduce((sum, card) => sum + card, 0);
+    }
 
-		// More realistic slot: three independent reels, weighted symbols and staggered stops
-		function spinWeighted(symbols){
-			const total = symbols.reduce((s,it)=>s+it.weight,0);
-			let r = Math.random()*total;
-			for(const it of symbols){
-				if(r < it.weight) return it.symbol;
-				r -= it.weight;
-			}
-			return symbols[symbols.length-1].symbol;
-		}
+    document.getElementById('dealButton').addEventListener('click', () => {
+      const blackjackInfo = document.getElementById('blackjackInfo');
+      if (tokens < 5) {
+        blackjackInfo.textContent = 'Vous avez besoin d au moins 5 jetons pour jouer.';
+        return;
+      }
+      tokens -= 5;
+      updateBalance();
+      const deck = createDeck();
+      blackjackState = {
+        player: [deck.splice(Math.floor(Math.random() * deck.length), 1)[0], deck.splice(Math.floor(Math.random() * deck.length), 1)[0]],
+        dealer: [deck.splice(Math.floor(Math.random() * deck.length), 1)[0]],
+        deck
+      };
+      document.getElementById('hitButton').disabled = false;
+      document.getElementById('standButton').disabled = false;
+      blackjackInfo.textContent = `Vos cartes : ${blackjackState.player.join(', ')} (total ${totalHand(blackjackState.player)}) - Croupier : ${blackjackState.dealer[0]}`;
+    });
 
-		function playSlotMachineFinalize(resultSymbols){
-			const balances = loadBalances();
-			const amount = balances[currentUser]||0;
-			// cost 1 token
-			balances[currentUser] = amount - 1;
+    document.getElementById('hitButton').addEventListener('click', () => {
+      const blackjackInfo = document.getElementById('blackjackInfo');
+      if (!blackjackState) return;
+      blackjackState.player.push(blackjackState.deck.splice(Math.floor(Math.random() * blackjackState.deck.length), 1)[0]);
+      const total = totalHand(blackjackState.player);
+      if (total > 21) {
+        blackjackInfo.textContent = `Bust ! Vos cartes : ${blackjackState.player.join(', ')} (total ${total}) - Vous perdez.`;
+        blackjackState = null;
+        document.getElementById('hitButton').disabled = true;
+        document.getElementById('standButton').disabled = true;
+        return;
+      }
+      blackjackInfo.textContent = `Vos cartes : ${blackjackState.player.join(', ')} (total ${total}) - Croupier : ${blackjackState.dealer[0]}`;
+    });
 
-			// payout rules
-			const [a,b,c] = resultSymbols;
-			let payout = 0;
-			if(a===b && b===c){
-				if(a==='7️⃣') payout = 50; // jackpot
-				else if(a==='🔔') payout = 20;
-				else payout = 10; // any three same
-			} else if(a===b || b===c || a===c){
-				payout = 3; // two of a kind
-			}
+    document.getElementById('standButton').addEventListener('click', () => {
+      const blackjackInfo = document.getElementById('blackjackInfo');
+      if (!blackjackState) return;
+      while (totalHand(blackjackState.dealer) < 17) {
+        blackjackState.dealer.push(blackjackState.deck.splice(Math.floor(Math.random() * blackjackState.deck.length), 1)[0]);
+      }
+      const playerTotal = totalHand(blackjackState.player);
+      const dealerTotal = totalHand(blackjackState.dealer);
+      let result;
+      if (dealerTotal > 21 || playerTotal > dealerTotal) {
+        result = 'Vous gagnez ! +15 jetons';
+        tokens += 15;
+      } else if (dealerTotal === playerTotal) {
+        result = 'Égalité. Vous récupérez 5 jetons';
+        tokens += 5;
+      } else {
+        result = 'Le croupier gagne. Vous perdez.';
+      }
+      blackjackInfo.textContent = `Vos cartes : ${blackjackState.player.join(', ')} (total ${playerTotal}) - Croupier : ${blackjackState.dealer.join(', ')} (total ${dealerTotal}) - ${result}`;
+      updateBalance();
+      blackjackState = null;
+      document.getElementById('hitButton').disabled = true;
+      document.getElementById('standButton').disabled = true;
+    });
 
-			balances[currentUser] += payout;
-			saveBalances(balances);
-			updateBalanceDisplay();
+    document.getElementById('scratchButton').addEventListener('click', () => {
+      const scratchResult = document.getElementById('scratchResult');
+      if (tokens < 2) {
+        scratchResult.textContent = 'Vous avez besoin d au moins 2 jetons pour jouer.';
+        return;
+      }
+      tokens -= 2;
+      const values = [0, 0, 0].map(() => Math.floor(Math.random() * 5));
+      const matches = values.filter(v => v === values[0]).length === 3 ? 3 : (values[0] === values[1] || values[1] === values[2] || values[0] === values[2]) ? 2 : 0;
+      let prize = 0;
+      if (matches === 3) prize = 50;
+      else if (matches === 2) prize = 10;
+      if (prize > 0) {
+        tokens += prize;
+        scratchResult.textContent = `Résultat : ${values.join(' - ')} - Gagné ! +${prize} jetons`;
+      } else {
+        scratchResult.textContent = `Résultat : ${values.join(' - ')} - Pas de gain.`;
+      }
+      updateBalance();
+    });
 
-			if(payout>0){
-				slotResult.style.color = '#2ecc71';
-				slotResult.textContent = `Résultat : ${resultSymbols.join(' ')} - 🎉 Vous gagnez ${payout} jetons !`;
-			} else {
-				slotResult.style.color = '#f1c40f';
-				slotResult.textContent = `Résultat : ${resultSymbols.join(' ')} - 😢 Perdu.`;
-			}
-			shopMessage.textContent = '';
-			playSlotBtn.disabled = false;
-			playSlotBtn.textContent = 'Jouer 1 jeton';
-		}
+    const lottoNumbers = document.getElementById('lottoNumbers');
+    for (let i = 1; i <= 20; i++) {
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.value = i;
+      checkbox.id = `lotto-${i}`;
+      checkbox.name = 'lottoNumber';
+      const label = document.createElement('label');
+      label.htmlFor = checkbox.id;
+      label.textContent = i;
+      lottoNumbers.appendChild(checkbox);
+      lottoNumbers.appendChild(label);
+      if (i % 5 === 0) lottoNumbers.appendChild(document.createElement('br'));
+    }
 
-		playSlotBtn.addEventListener('click', ()=>{
-			if(!currentUser){
-				slotMessage.textContent = 'Connectez-vous avant de jouer.';
-				return;
-			}
-			const balances = loadBalances();
-			const amount = balances[currentUser]||0;
-			if(amount < 1){
-				slotMessage.textContent = 'Vous n\'avez pas assez de jetons pour jouer.';
-				return;
-			}
-			slotMessage.textContent = '';
-			playSlotBtn.disabled = true;
-			playSlotBtn.textContent = 'Rotation...';
-
-			// define symbols with weights (rarer symbols have lower weight)
-			const symbols = [
-				{symbol:'7️⃣', weight:5},
-				{symbol:'🔔', weight:10},
-				{symbol:'⭐', weight:15},
-				{symbol:'🍋', weight:30},
-				{symbol:'🍒', weight:40}
-			];
-
-			// animate three reels independently with staggered stops
-			const reelDisplays = ['','',''];
-			const intervals = [];
-			for(let r=0;r<3;r++){
-				let i=0;
-				intervals[r] = setInterval(()=>{
-					// cycle visual (fast)
-					const seq = [symbols[i%symbols.length].symbol, symbols[(i+1)%symbols.length].symbol, symbols[(i+2)%symbols.length].symbol];
-					reelDisplays[r] = seq[0];
-					slotResult.textContent = `${reelDisplays[0]||' '} ${reelDisplays[1]||' '} ${reelDisplays[2]||' '}`;
-					i++;
-				}, 70 + r*10);
-			}
-
-			// stop times staggered
-			setTimeout(()=>{
-				clearInterval(intervals[0]);
-				reelDisplays[0] = spinWeighted(symbols);
-			}, 800);
-			setTimeout(()=>{
-				clearInterval(intervals[1]);
-				reelDisplays[1] = spinWeighted(symbols);
-			}, 1100);
-			setTimeout(()=>{
-				clearInterval(intervals[2]);
-				reelDisplays[2] = spinWeighted(symbols);
-			}, 1400);
-
-			// finalize after last reel stops
-			setTimeout(()=>{
-				slotResult.textContent = `${reelDisplays[0]} ${reelDisplays[1]} ${reelDisplays[2]}`;
-				playSlotMachineFinalize([reelDisplays[0],reelDisplays[1],reelDisplays[2]]);
-			}, 1500);
-		});
-
-		playScratchBtn.addEventListener('click', ()=>{
-			if(!currentUser){
-				scratchResult.textContent = 'Connectez-vous avant de jouer.';
-				return;
-			}
-			const balances = loadBalances();
-			const amount = balances[currentUser]||0;
-			if(amount < 2){
-				scratchResult.textContent = 'Vous n\'avez pas assez de jetons.';
-				return;
-			}
-			balances[currentUser] = amount - 2;
-			const symbols = ['🍀','💎','⭐','🍒','7️⃣'];
-			const result = Array.from({length:3}, ()=>symbols[Math.floor(Math.random()*symbols.length)]);
-			const counts = result.reduce((acc,symbol)=>{ acc[symbol] = (acc[symbol]||0) + 1; return acc; }, {});
-			const win = Object.values(counts).some(v=>v>=2);
-			if(win){
-				balances[currentUser] += 10;
-				scratchResult.style.color = '#2ecc71';
-				scratchResult.textContent = `Résultat : ${result.join(' ')} - Bravo ! Vous gagnez 10 jetons.`;
-			} else {
-				scratchResult.style.color = '#f1c40f';
-				scratchResult.textContent = `Résultat : ${result.join(' ')} - Pas de chance.`;
-			}
-			saveBalances(balances);
-			updateBalanceDisplay();
-		});
-
-		function renderMachineProb(){
-			machineProbInput.value = loadMachineProb();
-		}
-
-		function renderAll(){
-			renderUsers();
-			renderBanned();
-			renderRequests();
-			renderMachineProb();
-			updateBalanceDisplay();
-		}
-
-		enterBtn.addEventListener('click', ()=>{
-			const name = pseudoInput.value.trim();
-			if(!name){ message.textContent='Veuillez entrer un pseudo valide.'; return; }
-			const banned = loadBanned();
-			if(banned.includes(name)){
-				message.textContent='Ce pseudo est banni. Vous ne pouvez pas accéder au jeu.';
-				return;
-			}
-			const users = loadUsers();
-			if(!users.includes(name)){
-				users.push(name);
-				saveUsers(users);
-			}
-			currentUser = name;
-			message.style.display='none';
-			showPage('shopPage');
-			welcome.textContent = `Bienvenue, ${name} ! Amusez-vous bien.`;
-			pseudoInput.value='';
-			updateBalanceDisplay();
-			renderUsers();
-			renderPendingList();
-		});
-
-		buyButtons.forEach(button=>{
-			button.addEventListener('click', ()=>{
-				const qty = Number(button.dataset.qty);
-				const cost = Number(button.dataset.cost);
-				createRequest(qty,cost);
-			});
-		});
-
-		navButtons.forEach(btn=>{
-			btn.addEventListener('click', ()=> showPage(btn.dataset.page));
-		});
-
-		saveProbBtn.addEventListener('click', ()=>{			const probability = Number(machineProbInput.value);
-			if(isNaN(probability) || probability < 0 || probability > 100){
-				shopMessage.textContent = 'Entrez une probabilité valide entre 0 et 100.';
-				return;
-			}
-			saveMachineProb(probability);
-			shopMessage.textContent = `Probabilité de gain mise à jour à ${probability}%.`;
-		});
-
-		clearBtn.addEventListener('click', ()=>{
-			if(confirm('Effacer tous les utilisateurs, bannissements, demandes et soldes ?')){
-				localStorage.removeItem('casino_users');
-				localStorage.removeItem('casino_banned');
-				localStorage.removeItem('casino_requests');
-				localStorage.removeItem('casino_balances');
-				renderAll();
-			}
-		});
-
-		const adminPassword = 'hbontop';
-		const adminLock = document.getElementById('adminLock');
-		adminNavButtons.forEach(btn=> btn.addEventListener('click', ()=> setAdminSection(btn.dataset.admin)));
-		setAdminSection('validation');
-		const adminContent = document.getElementById('adminContent');
-		const adminPasswordInput = document.getElementById('adminPassword');
-		const adminUnlock = document.getElementById('adminUnlock');
-		const adminLogout = document.getElementById('adminLogout');
-		const adminBtn = document.getElementById('adminBtn');
-
-		function toggleAdminPanel(){
-			adminPanel.classList.toggle('active');
-		}
-
-		adminBtn.addEventListener('click', toggleAdminPanel);
-
-		adminUnlock.addEventListener('click', ()=>{
-			if(adminPasswordInput.value === adminPassword){
-				adminLock.style.display = 'none';
-				adminContent.style.display = 'block';
-			} else {
-				adminPasswordInput.value = '';
-				alert('Mot de passe incorrect');
-			}
-		});
-
-		adminLogout.addEventListener('click', ()=>{
-			adminPanel.classList.remove('active');
-			adminLock.style.display = 'block';
-			adminContent.style.display = 'none';
-			adminPasswordInput.value = '';
-		});
-
-		document.addEventListener('keydown', e=>{
-			if(e.ctrlKey && (e.key==='p' || e.key==='P')){
-				e.preventDefault();
-				toggleAdminPanel();
-			}
-		});
-
-		renderAll();
-	</script>
+    document.getElementById('drawLottoButton').addEventListener('click', () => {
+      const lottoResult = document.getElementById('lottoResult');
+      const selected = Array.from(document.querySelectorAll('input[name="lottoNumber"]:checked')).map(el => parseInt(el.value, 10));
+      if (selected.length !== 5) {
+        lottoResult.textContent = 'Veuillez choisir exactement 5 numéros.';
+        return;
+      }
+      if (tokens < 5) {
+        lottoResult.textContent = 'Vous avez besoin d au moins 5 jetons pour jouer.';
+        return;
+      }
+      tokens -= 5;
+      const draw = [];
+      while (draw.length < 5) {
+        const number = Math.floor(Math.random() * 20) + 1;
+        if (!draw.includes(number)) draw.push(number);
+      }
+      const matches = selected.filter(value => draw.includes(value)).length;
+      let prize = 0;
+      if (matches === 5) prize = 200;
+      else if (matches === 4) prize = 50;
+      else if (matches === 3) prize = 10;
+      if (prize > 0) tokens += prize;
+      lottoResult.textContent = `Tirage : ${draw.join(', ')} - Correspondances : ${matches} - Gain : ${prize} jetons`;
+      updateBalance();
+    });
+  </script>
 </body>
 </html>
+
 
