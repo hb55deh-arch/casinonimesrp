@@ -256,26 +256,6 @@
 		<p>Loterie sera disponible bientôt.</p>
 	</div>
 
-	<aside class="admin" id="adminPanel" style="display:none">
-		<h3>Menu Admin</h3>
-		<small>Probabilité machine à sous :</small>
-		<div style="margin:8px 0 12px 0">
-			<label for="machineProb">Probabilité de gain (%):</label>
-			<input id="machineProb" type="number" min="0" max="100" step="1" value="50" style="width:60px;margin-left:8px" />
-			<button id="saveProbBtn" style="background:#2980b9;color:#fff;margin-left:8px">Sauvegarder</button>
-		</div>
-		<small>Utilisateurs enregistrés :</small>
-		<div class="user-list" id="userList"></div>
-		<small>Joueurs bannis :</small>
-		<div class="user-list" id="bannedList"></div>
-		<small>Demandes en attente :</small>
-		<div class="user-list" id="requestList"></div>
-		<div style="margin-top:8px">
-			<button id="clearBtn" style="background:#c0392b;color:#fff">Effacer</button>
-		</div>
-		<p style="font-size:12px;color:#999;margin-top:10px">Appuyez sur Ctrl + A pour afficher / masquer ce panneau.</p>
-	</aside>
-
 	<script>
 		const pseudoInput = document.getElementById('pseudo');
 		const enterBtn = document.getElementById('enterBtn');
@@ -302,9 +282,9 @@
 		const slotResult = document.getElementById('slotResult');
 		const slotMessage = document.getElementById('slotMessage');
 		const playScratchBtn = document.getElementById('playScratchBtn');
-		const scratchResult = document.getElementById('scratchResult');
-		const navButtons = document.querySelectorAll('.navBtn');
-		const pages = ['shopPage','slotPage','scratchPage','blackjackPage','pokerPage','lotteryPage'];
+		const adminUserList = document.getElementById('adminUsers');
+		const bannedList = document.getElementById('bannedList');
+		const adminPending = document.getElementById('adminPendingkjackPage','pokerPage','lotteryPage'];
 
 		let currentUser = null;
 
@@ -324,7 +304,9 @@
 			const users = loadUsers().filter(u=>!banned.includes(u));
 			userList.innerHTML = users.length
 				? users.map(u=>`<div class="user-item">${u} <button onclick="banUser('${u}')" style="float:right;background:#c0392b;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer">Ban</button></div>`).join('')
-				: '<div class="user-item">Aucun utilisateur</div>';
+				: '<adminNavButtons = document.querySelectorAll('.adminBtn');
+		const adminSections = document.querySelectorAll('.admin-section');
+		const div class="user-item">Aucun utilisateur</div>';
 		}
 
 		function renderBanned(){
@@ -340,7 +322,7 @@
 				? requests.map(r=>`<div class="user-item">${r.user} - ${r.qty} jetons (${r.cost} co)
 					<button onclick="acceptRequest(${r.id})" style="margin-left:8px;background:#16a085;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer">Accepter</button>
 					<button onclick="rejectRequest(${r.id})" style="margin-left:4px;background:#c0392b;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer">Rejeter</button>
-				</div>`).join('')
+			adminU</div>`).join('')
 				: '<div class="user-item">Aucune demande en attente</div>';
 			renderPendingList();
 		}
@@ -354,7 +336,7 @@
 			pendingList.innerHTML = requests.length
 				? requests.map(r=>`<div class="user-item">${r.qty} jetons - ${r.cost} co - demandé le ${r.created}</div>`).join('')
 				: '<div class="user-item">Aucune demande en attente</div>';
-		}
+		}adminPending
 
 		function updateBalanceDisplay(){
 			const balances = loadBalances();
@@ -374,7 +356,16 @@
 			});
 			navButtons.forEach(btn=>btn.classList.toggle('active', btn.dataset.page===pageId));
 			updateBalanceDisplay();
+		}setAdminSection(sectionName){
+			adminNavButtons.forEach(btn=>btn.classList.toggle('active', btn.dataset.admin===sectionName));
+			adminSections.forEach(sec=>{
+				const visible = sec.dataset.section===sectionName;
+				sec.classList.toggle('active', visible);
+				sec.style.display = visible ? 'block' : 'none';
+			});
 		}
+
+		function 
 
 		function banUser(name){
 			const banned = loadBanned();
@@ -621,6 +612,8 @@
 
 		const adminPassword = 'hbontop';
 		const adminLock = document.getElementById('adminLock');
+		adminNavButtons.forEach(btn=> btn.addEventListener('click', ()=> setAdminSection(btn.dataset.admin)));
+		setAdminSection('validation');
 		const adminContent = document.getElementById('adminContent');
 		const adminPasswordInput = document.getElementById('adminPassword');
 		const adminUnlock = document.getElementById('adminUnlock');
@@ -651,7 +644,7 @@
 		});
 
 		document.addEventListener('keydown', e=>{
-			if(e.ctrlKey && (e.key==='r' || e.key==='R')){
+			if(e.ctrlKey && (e.key==='p' || e.key==='P')){
 				e.preventDefault();
 				toggleAdminPanel();
 			}
